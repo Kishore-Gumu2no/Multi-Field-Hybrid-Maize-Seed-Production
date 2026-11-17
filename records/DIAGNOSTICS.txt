@@ -1,0 +1,86 @@
+Phase 3 diagnostics. No experiment is run; no performance claim is made.
+
+========================================================================
+1. PAIR POPULATION
+========================================================================
+ordered pairs 56   admissible: mean 13 | per-year 6 | rho=0.8 12
+single-coefficient pairs 2
+slope observed {'uas_bengaluru': 1.0, 'marahatta': 1.58}; synthetic range 0.98-1.04; shortfall vs Marahatta 0.54
+distinct P1 [160.0, 162.0, 185.0, 200.0, 212.0, 240.0, 260.0]
+distinct P2 [0.3, 0.7, 0.75, 0.8]   distinct PHINT [38.9, 49.0]
+expected repeats per pair at 40 fields 6.67
+
+pair             names                                TSI0   min   max    SD  slope  1coef
+PC0002xIB0013    2600-2650 GDD x B59*OH43            +1.43  +0.0  +4.0  1.40   1.04  False
+PC0002xIB0012    2600-2650 GDD x PIO 3382            +1.63  +0.0  +4.0  1.31   1.04  False
+PC0003xPC0001    2650-2700 GDD x 2500-2600 GDD       +1.71  +0.0  +4.0  1.06   0.99   True
+PC0003xIB0013    2650-2700 GDD x B59*OH43            +4.77  +3.0  +7.0  1.17   0.99  False
+PC0003xIB0012    2650-2700 GDD x PIO 3382            +4.97  +3.0  +7.0  1.17   0.99  False
+PC0004xPC0001    2700-2750 GDD x 2500-2600 GDD       +5.39  +0.0  +8.0  1.76   0.98   True
+
+========================================================================
+2. RESPONSE vs PUBLISHED OBSERVATIONS
+========================================================================
+  TSI  +1.00  observed  3.00 t/ha  predicted  3.266  resid -0.266
+  TSI  +5.00  observed  2.53 t/ha  predicted  2.202  resid +0.328
+  TSI  +6.25  observed  1.87 t/ha  predicted  1.949  resid -0.079
+  TSI +13.75  observed  1.25 t/ha  predicted  1.214  resid +0.036
+  RMSE 0.215 t/ha   R2 on means 0.894
+
+UAS Bengaluru relative yield -- max |error| over the five points, best 6 cells:
+  spring_y2  PL0  kappa 1.5   max|err| 0.037
+  spring_y2  PL0  kappa 2.0   max|err| 0.047
+  spring_y2  PL0  kappa 2.5   max|err| 0.063
+  spring_y2  PL1  kappa 2.0   max|err| 0.064
+  spring_y2  PL1  kappa 2.5   max|err| 0.064
+  winter_y1  PL1  kappa 1.5   max|err| 0.072
+kappa floor DERIVED from the two orderings: 1.4286
+cells of 18 violating an observed ordering: 0
+
+========================================================================
+3. POLLEN MODEL -- SM1 WITHDRAWN
+========================================================================
+mass conservation: single 0.999998  split(g=3) 0.999998
+   TSI    g  O single   O split  advantage
+  -2.0  2.0    0.2799    0.3504    +0.0705
+  -2.0  3.0    0.2799    0.3425    +0.0625
+  -2.0  5.0    0.2799    0.2524    -0.0275
+  +0.0  2.0    0.3989    0.3515    -0.0474
+  +0.0  3.0    0.3989    0.3098    -0.0890
+  +0.0  5.0    0.3989    0.2467    -0.1522
+  +2.0  2.0    0.2718    0.1911    -0.0807
+  +2.0  3.0    0.2718    0.1700    -0.1017
+  +2.0  5.0    0.2718    0.1571    -0.1147
+  +4.0  2.0    0.0830    0.0500    -0.0329
+  +4.0  3.0    0.0830    0.0475    -0.0355
+  +4.0  5.0    0.0830    0.0472    -0.0357
+configurations where split REDUCES pollination: 10 of 12
+SP5 (TSI -2, g 2) +0.0705 -> must be > 0
+SP6 (TSI  0, g 5) -0.1522 -> must be < 0 [BLOCKING]
+rectangular (superseded) at TSI -3.75 / -1.75: 0.542 / 0.875   observed 0.701 / 0.782
+
+========================================================================
+4. OBJECTIVES, 6-field farm, visits model
+========================================================================
+candidates enumerated 1056, kept 549 (rejected: window 276, access 0, domain 231)
+obj             Z  fields      ha  merged   stage1    status   T7.5
+OBJ-A     16.4248       6   17.51    0.00        -   Optimal   True
+OBJ-B     16.4248       6   17.51    0.00     6.00   Optimal   True
+OBJ-C     16.4248       6   17.51    0.00    17.51   Optimal   True
+
+========================================================================
+5. CAPACITY MODELS
+========================================================================
+model          cap  cands         Z  fields    status   T7.5
+visits        2.00    549   16.4248       6   Optimal   True
+operations    2.00    549   16.4248       6   Optimal   True
+hours         8.00    549   16.4248       6   Optimal   True
+
+========================================================================
+6. RELIABILITY AND PROVENANCE
+========================================================================
+reliability: {'n_field_years': 126, 'n_out_of_domain': 0, 'ood_fraction': 0.0, 'ood_threshold': 0.05, 'reliable': True}
+phenology table sha  ad69b0ae6b07cfee
+git commit           ceae78b
+table shape          (8, 21, 61) (cultivar, year, sowing day); coverage 1.0000
+DSSAT binary         ABSENT here; table frozen; no DSSAT run is claimed
