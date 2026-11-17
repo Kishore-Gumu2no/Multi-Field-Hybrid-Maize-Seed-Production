@@ -237,8 +237,13 @@ def relative_yield_checked(x, scenario=PRIMARY_SCENARIO):
 def ensemble_relative_yield(tsi_values, scenario=PRIMARY_SCENARIO):
     """
     Mean of r(TSI) over weather years -- the FACTOR is averaged, never TSI
-    (P2-D16). Averaging TSI first understates the penalty wherever r is
-    concave, which is most of its range.
+    (P2-D16). Expected yield is E[r(TSI)], not r(E[TSI]).
+
+    CORRECTION made in Phase 3: the published quadratic has c = +0.012, so r is
+    CONVEX on its positive branch. Phase 2 issue I4 and the Phase 2 Supplement
+    both gave the bias direction backwards. By Jensen, averaging TSI first
+    OVERSTATES the penalty (r(E[TSI]) <= E[r(TSI)]). The requirement is
+    unchanged; only the stated reason was wrong.
 
     Returns (mean_r_over_in_domain_years, n_in_domain, n_total).
     """
