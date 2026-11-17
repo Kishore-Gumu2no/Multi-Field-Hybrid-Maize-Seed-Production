@@ -1,4 +1,4 @@
-# When Does Adaptive Scheduling Pay?
+# Optimised Sowing Scheduling for Multi-Field Hybrid Maize Seed Production
 
 Simulation study of in-season replanning for multi-field hybrid maize seed
 production, testing whether the limited value of adaptive scheduling reported
@@ -31,7 +31,21 @@ results/            CSV output and summary.json
 figs/               figures
 ```
 
-## Reproducing
+## Revised manuscript (paper_v2)
+
+The revised paper (`paper/paper_v2.tex`, filled by `fill_v2.py`) is built
+from the real-data results plus two further experiments:
+
+```bash
+python3 run_full21.py     # R6: assignment result on all 21 seasons, greedy competitor, solve times (~1 h)
+python3 run_curves.py     # R7: sensitivity to the three published yield curves (~1 h)
+./build_v2.sh             # figure 12, inject numbers, compile paper/paper_v2_filled.pdf
+```
+
+`R3`-`R5` (replanning, 7 seasons) are produced by `run_real_rep.py`,
+`run_saturation.py` and `run_baseline.py` as before.
+
+## Reproducing the provisional (synthetic-weather) study
 
 ```bash
 pip install numpy scipy pandas matplotlib "pulp==2.9.0"
