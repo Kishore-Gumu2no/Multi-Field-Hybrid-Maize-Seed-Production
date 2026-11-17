@@ -1,0 +1,87 @@
+21 real seasons (2005-2025); scoring 7 leave-one-out; 5 independent farms per cell
+50 cells, 2 processes
+  P_N10K2_f1                   23s
+  P_N10K2_f2                   27s
+  P_N10K2_f3                   26s
+  P_N10K2_f4                   25s
+  P_N10K2_f5                   25s
+[5/50] 74s elapsed
+  P_N20K2_f1                   57s
+  P_N20K2_f2                   53s
+  P_N20K2_f3                   59s
+  P_N20K2_f4                   57s
+  P_N20K2_f5                   53s
+[10/50] 221s elapsed
+  P_N30K2_f1                  101s
+  P_N30K2_f2                  105s
+  P_N30K2_f3                   99s
+  P_N30K2_f4                   99s
+  P_N30K2_f5                   91s
+[15/50] 476s elapsed
+  P_N40K2_f1                  206s
+  P_N40K2_f2                  176s
+  P_N40K2_f3                  211s
+  P_N40K2_f4                  201s
+  P_N40K2_f5                  212s
+[20/50] 1054s elapsed
+  P_N55K2_f1                  231s
+  P_N55K2_f2                  259s
+  P_N55K2_f3                  282s
+  P_N55K2_f4                  265s
+  P_N55K2_f5                  266s
+[25/50] 1631s elapsed
+  P_N70K2_f1                  209s
+  P_N70K2_f2                  217s
+  P_N70K2_f3                  226s
+  P_N70K2_f4                  229s
+  P_N70K2_f5                  233s
+[30/50] 2246s elapsed
+  L0.25_f1                    219s
+  L0.25_f2                    223s
+  L0.25_f3                    197s
+  L0.25_f4                    209s
+  L0.25_f5                    194s
+[35/50] 2687s elapsed
+  L0.5_f1                     236s
+  L0.5_f2                     259s
+  L0.5_f3                     241s
+  L0.5_f4                     234s
+  L0.5_f5                     231s
+[40/50] 3386s elapsed
+  L2.0_f1                     266s
+  L2.0_f2                     304s
+  L2.0_f3                     245s
+  L2.0_f5                     261s
+  L2.0_f4                     273s
+[45/50] 3963s elapsed
+  L3.0_f1                     257s
+  L3.0_f2                     306s
+  L3.0_f3                     259s
+  L3.0_f4                     273s
+  L3.0_f5                     305s
+[50/50] 4774s elapsed
+
+resource pressure (lambda = 1)
+ n_fields  capacity  pressure      S1      S3      S4      S5  gain_pct     p  n  n_farms_pos  n_farms
+       10         2     0.246  42.552  65.224  69.950  81.674     7.246 0.018 35            5        5
+       20         2     0.492  80.484 127.520 132.627 162.316     4.005 0.022 35            5        5
+       30         2     0.738 106.001 184.443 186.963 235.862     1.366 0.392 35            3        5
+       40         2     0.984 124.576 236.332 230.361 297.601    -2.526 0.060 35            2        5
+       55         2     1.352 117.337 259.976 269.363 327.605     3.611 0.009 35            5        5
+       70         2     1.721 116.180 310.061 325.248 383.090     4.898 0.000 35            5        5
+
+gain vs pressure: r = -0.170 (p = 0.7475)
+
+sharpness at N=55, K=2
+ sharpness      S3      S4  gain_pct     p  n  n_farms_pos  n_farms
+      0.25 358.510 360.253     0.486 0.444 35            2        5
+      0.50 315.165 322.401     2.296 0.029 35            4        5
+      1.00 259.976 269.363     3.611 0.009 35            5        5
+      2.00 192.220 208.507     8.473 0.000 35            5        5
+      3.00 156.766 171.090     9.138 0.000 35            5        5
+
+gain vs sharpness: r = 0.964 (p = 0.0080)
+
+pooled over all pressure cells: +2.62% (t = 4.32, p = 2.375e-05, n = 210)
+
+done in 4774s -> /home/claude/work/results/R3_*

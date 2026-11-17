@@ -1,0 +1,50 @@
+farm: 12 fields, 33.0 ha, window 26 d, capacity 2 visits/d
+
+E1 main comparison ...
+                    mean    std     min     max
+strategy                                       
+S1_conventional    98.04  15.08   34.14  114.52
+S2_static_ev      100.18  12.83   64.75  118.58
+S3_static_robust  100.93  14.74   51.55  118.58
+S4_dynamic        104.83  12.34   64.67  118.58
+S5_wait_and_see   118.55   0.17  116.96  118.58
+  S3_static_robust - S2_static_ev          +0.75 t ( +0.7%)  p=0.57  d=0.06
+  S4_dynamic - S3_static_robust            +3.90 t ( +3.9%)  p=2.3e-06  d=0.50
+  S3_static_robust - S1_conventional       +2.88 t ( +2.9%)  p=0.021  d=0.24
+  S5_wait_and_see - S4_dynamic            +13.72 t (+13.1%)  p=3.3e-19  d=1.12
+
+E2 sharpness sweep ...
+/usr/local/lib/python3.13/dist-packages/scipy/stats/_wilcoxon.py:192: RuntimeWarning: invalid value encountered in scalar divide
+  z = (r_plus - mn) / se
+ sharpness      S3      S4      S5  adaptivity_gain_t  adaptivity_gain_pct  closes_evpi_pct  p_cohen_d  p_t_p
+      0.00 113.605 113.605 118.577              0.000                0.000            0.000        NaN    NaN
+      0.25 110.270 112.779 118.570              2.509                2.275           30.229      0.353  0.008
+      0.50 107.331 110.431 118.564              3.100                2.888           27.595      0.422  0.002
+      1.00 102.457 106.621 118.550              4.164                4.064           25.876      0.508  0.000
+      1.50  98.635 102.333 118.538              3.698                3.749           18.579      0.599  0.000
+      2.00  95.271  99.833 118.526              4.563                4.789           19.620      0.667  0.000
+      3.00  91.201  95.445 118.504              4.244                4.654           15.546      0.560  0.000
+
+E3 replanning frequency ...
+              yield_t  changes  gain_vs_S3
+replan_every                              
+1              106.27    11.02        4.68
+2              105.07     9.16        3.49
+3              105.42     7.74        3.83
+5              104.80     6.50        3.21
+7              104.32     6.54        2.74
+
+E4 sensor ablation ...
+          mean    std
+sensor               
+False   106.66  10.94
+True    106.62  11.02
+
+E5 crew capacity ...
+ capacity     S3     S4     S5  gain
+        1  93.45  94.80 114.76  1.35
+        2 101.87 105.42 118.54  3.55
+        3 104.63 105.66 118.56  1.02
+        4 104.49 105.95 118.56  1.46
+
+done in 2510s -> /home/claude/anthesis/results/

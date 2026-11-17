@@ -1,0 +1,38 @@
+{
+  "gdd_rate_local": 13.51171768707483,
+  "gdd_rate_local_sd": 0.7206501311347043,
+  "gdd_rate_cimmyt": 12.079,
+  "mean_abs_err_days": 0.28611640036426844,
+  "max_abs_err_days": 0.4313270966139573,
+  "direction_correct": 6,
+  "n_hybrids": 6,
+  "spans_r": 0.9891492076261462,
+  "spans_p": 0.0938683825037493,
+  "spans_mae": 1.500689902585755,
+  "rank_rho": 0.7142857142857143,
+  "rank_p": 0.11078717201166179,
+  "model_order": [
+    "CLTHY13002",
+    "CLTHY15031",
+    "CLTHW13002",
+    "CLTHW14003",
+    "CLTHY15013",
+    "CLTHW15001"
+  ],
+  "cimmyt_order": [
+    "CLTHY15031",
+    "CLTHW14003",
+    "CLTHY13002",
+    "CLTHW13002",
+    "CLTHY15013",
+    "CLTHW15001"
+  ],
+  "source_notes": {
+    "gdd_formula": "'GDD = (Tmax + Tmin)/2 - Tbase ... if temperature was greater than 30 C, the value of 30 was recorded; if less than 10 C, the value of 10 was assigned; Tbase = 10 C' (Sect. 2.3). Identical to ours.",
+    "pollen_shed": "'The number of days from the beginning of pollen shedding to 90% of plants flowering was 4 to 5, estimating 7 days for the total pollen shedding duration' (Sect. 3.2.1). We use 7.",
+    "stigma": "'Stigmas are receptive by approximately 5 days after the beginning of female flowering and they senesce 8 days later'; 'the period of exposure of stigmas ... were 4 to 5 days' (Sect. 3.2.1). We use 6.",
+    "resource_assumption": "'In all cases for which a second sowing date for the males is recommended, it is assumed that machinery is available to do the sowing, or, in the case of rains after the first sowing, staff are available to planting' (Sect. 3.2.1).",
+    "rain_lag": "'A second date of males is sown, anticipating a lag with the first date due to some unforeseen rain during those 10 days until T32/T10 is sown' (Sect. 3.2.1).",
+    "gdd_rate": "Fig. 2 regression slopes of accumulated GDD on days after sowing: 11.186, 12.631, 12.316, 12.183 GDD/day for SD1-SD4."
+  }
+}
