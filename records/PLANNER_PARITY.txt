@@ -1,0 +1,17 @@
+Scoring parity across S1-S5 and B1-B6. One shared candidate set.
+No strategy comparison is drawn; no performance claim is made.
+
+--- capacity model: visits (469 candidates, capacity 2.0) ---
+planner             objective  execution    |diff| fields     ha  merged
+B1_sequential          9.7726     9.7726   1.8e-15      4  10.08    0.25
+B2_earliest            9.7726     9.7726   1.8e-15      4  10.08    0.25
+B3_largest            13.6312    13.6312   0.0e+00      6  16.40    0.17
+B4_hardest            13.3189    13.3189   1.8e-15      6  16.36    0.17
+B5_greedy             17.9775    17.9775   0.0e+00      8  21.80    0.25
+B6_joint              18.8067    18.8067   0.0e+00      8  21.80    0.12
+S1_conventional        7.3399     7.3399   0.0e+00      3   8.22    0.00
+S2_static_ev          18.8067    18.8067   0.0e+00      8  21.80    0.12
+S3_static_robust      18.8067    18.8067   0.0e+00      8  21.80    0.12
+S4_dynamic            18.8067    18.8067   0.0e+00      8  21.80    0.12
+S5_wait_and_see       18.8067    18.8067   0.0e+00      8  21.80    0.12
+worst |objective - execution| across all eleven: 1.8e-15
