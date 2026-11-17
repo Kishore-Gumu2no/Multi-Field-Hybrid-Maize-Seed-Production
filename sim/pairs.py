@@ -236,14 +236,22 @@ def pair_info(ph, cult_m, cult_f, sow_day, asi0=ASI0_DEFAULT):
 
 
 def admissible_pairs(ph, sow_day, asi0=ASI0_DEFAULT, scope="years",
-                     tau_min=TAU_MIN, tau_max=TAU_MAX):
+                     tau_min=TAU_MIN, tau_max=TAU_MAX, rho=1.0):
     """
     Admissible ordered pairs, sorted by same-day TSI.
 
-    scope "mean"  -- grand-mean TSI(0) within range (the superseded weaker test)
-    scope "years" -- TSI(0) within range in EVERY weather year  (X6, required)
+    scope "mean"     -- grand-mean TSI(0) within range (the superseded weaker test)
+    scope "years"    -- TSI(0) within range in EVERY weather year (X6, primary)
+    scope "fraction" -- TSI(0) within range in at least `rho` of years, the
+                        relaxed variant allowed by Phase 2 section 6.3 rule 4.
+                        Reported as a labelled variant, never as the primary.
+
+    Requiring every year is strict: it leaves 6 of 56 ordered pairs, against 13
+    on the grand mean. The relaxed scope exists because 6 pairs for a 40-field
+    farm makes fields strongly non-independent; whichever scope is used must be
+    reported with the result.
     """
-    if scope not in ("mean", "years"):
+    if scope not in ("mean", "years", "fraction"):
         raise ValueError(f"unknown scope {scope!r}")
     out = []
     for cm in ph.cultivars:
@@ -255,9 +263,14 @@ def admissible_pairs(ph, sow_day, asi0=ASI0_DEFAULT, scope="years",
                 continue
             if scope == "mean":
                 ok = tau_min - 1e-9 <= p.tsi0_mean <= tau_max + 1e-9
-            else:
+            elif scope == "years":
                 ok = (tau_min - 1e-9 <= p.tsi0_min
                       and p.tsi0_max <= tau_max + 1e-9)
+            else:
+                t = delta_series(ph, cm, cf, sow_day) - asi0
+                t = t[np.isfinite(t)]
+                inside = ((t >= tau_min - 1e-9) & (t <= tau_max + 1e-9)).mean()
+                ok = bool(t.size) and inside >= rho - 1e-9
             if ok:
                 out.append(p)
     return sorted(out, key=lambda q: q.tsi0_mean)
@@ -283,7 +296,7 @@ def legacy_rule_violations(ph, lo=1.5, hi=14.0):
 
 
 def stratified_pairs(ph, n_pairs, rng, sow_day, asi0=ASI0_DEFAULT,
-                     scope="years", with_replacement=True):
+                     scope="years", with_replacement=True, rho=1.0):
     """
     Draw `n_pairs` pairs stratified on TSI(0) (P2-D3).
 
@@ -295,7 +308,7 @@ def stratified_pairs(ph, n_pairs, rng, sow_day, asi0=ASI0_DEFAULT,
     pairs a 40-field farm must reuse them. The reuse factor is reported by
     `population_report` as the independence caveat for the bootstrap.
     """
-    cands = admissible_pairs(ph, sow_day, asi0, scope)
+    cands = admissible_pairs(ph, sow_day, asi0, scope, rho=rho)
     if not cands:
         raise InadmissiblePair(
             f"no admissible pairs at sow_day={sow_day}, asi0={asi0}, scope={scope}")
@@ -319,6 +332,7 @@ def population_report(ph, sow_day, asi0=ASI0_DEFAULT, n_fields=20):
     n_c = len(ph.cultivars)
     mean_set = admissible_pairs(ph, sow_day, asi0, "mean")
     year_set = admissible_pairs(ph, sow_day, asi0, "years")
+    frac_set = admissible_pairs(ph, sow_day, asi0, "fraction", rho=0.8)
     n_adm = len(year_set) or len(mean_set)
     slopes = [p.slope for p in year_set if np.isfinite(p.slope)]
     return {
@@ -329,6 +343,7 @@ def population_report(ph, sow_day, asi0=ASI0_DEFAULT, n_fields=20):
         "n_ordered_pairs": n_c * (n_c - 1),
         "n_admissible_mean": len(mean_set),
         "n_admissible_years": len(year_set),
+        "n_admissible_rho80": len(frac_set),
         "n_single_coefficient_pairs": sum(1 for p in year_set if p.single_coefficient),
         "slope_observed": dict(SLOPE_OBSERVED),
         "slope_range": (min(slopes), max(slopes)) if slopes else (np.nan, np.nan),
