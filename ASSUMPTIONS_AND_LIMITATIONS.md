@@ -98,6 +98,14 @@ not defended as such.
 | drainage | U{1, 2, 3} d | **SYNTHETIC** |
 | out-of-domain gate | 5% of field-years | **ASSUMED** by judgement; reported with the figure it gates |
 
+## Solver limitations, *DERIVED* in the U4 closure
+
+| # | Limitation | Measured |
+| --- | --- | --- |
+| L12 | The **hours** capacity model does not close within 120 s at 20 fields or more; its fractional cost coefficients make the problem a multi-dimensional knapsack | LP gap 0.126 at N=20, 0.192 at N=40, both time-limited. Results are **lower bounds** |
+| L13 | CBC through PuLP reports "Optimal" after a time-limit stop, so the status string cannot be used to claim proven optimality | Detected by elapsed-time comparison; `Solution.termination` classifies the three cases |
+| L14 | The reported gap is measured against the **LP relaxation**, which is loose for this problem shape. A non-zero gap on a converged solve bounds what can be proven, not how far the solution is from optimal | visits 0.0000-0.0026, operations 0.0004-0.0133, hours 0.068-0.192 |
+
 ## Limitations that cannot be removed within this project
 
 | # | Limitation |

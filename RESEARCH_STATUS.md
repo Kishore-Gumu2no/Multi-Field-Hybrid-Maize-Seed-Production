@@ -61,6 +61,27 @@ module is untouched.
 Results produced by those paths are **superseded** and must be labelled so;
 they are not deleted.
 
+## U4 -- closed
+
+`sim/compare.py` provides S1-S5 and B1-B6, all selecting from one shared
+candidate set and all executed through `scoring.score_plan`. Objective and
+execution scores match exactly for all eleven planners under all three capacity
+models. `sim/strategies.py` and `sim/baselines.py` remain untouched and are not
+imported by the Phase 4 path; a test parses the modules to prove it.
+
+## Solver behaviour at realistic farm sizes
+
+Measured on deterministic instances, 31-day window, `records/SOLVER_SCALING.txt`:
+
+| Model | N=10 | N=20 | N=40 |
+| --- | --- | --- | --- |
+| visits | converged, 0.1 s | **proven**, 0.1 s | converged, 0.3 s |
+| operations | converged, 0.2 s | converged, 0.7 s | converged, 0.4 s |
+| hours | converged, 4.3 s | **time-limited**, 120 s | **time-limited**, 120 s |
+
+Hours-model results at 20 fields and above are **lower bounds** and must be
+labelled so. This is enforced by `Solution.is_lower_bound`.
+
 ## Blocking items for Phase 4
 
 None in the implementation. Three items are blocking for **submission**, not

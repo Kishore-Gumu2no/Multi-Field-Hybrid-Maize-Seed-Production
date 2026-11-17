@@ -41,6 +41,7 @@ ten fields, and removing it changed the result from 34 fields / 283.0 t to
 historical reproducibility; nothing here uses it, and no constant is tuned.
 """
 
+import time
 from dataclasses import dataclass, field as _dcfield
 from typing import Dict, List, Optional
 
@@ -89,6 +90,59 @@ class Solution:
     stage1_value: Optional[float] = None
     n_candidates: int = 0
     n_dropped_outside_window: int = 0
+    lp_bound: Optional[float] = None
+    elapsed_s: Optional[float] = None
+    hit_time_limit: bool = False
+
+    @property
+    def proven_optimal(self):
+        """
+        True only when the gap is measurably closed AND the solver did not stop
+        on the time limit. The status string alone is not sufficient.
+        """
+        return (not self.hit_time_limit
+                and self.gap is not None and self.gap <= 1e-9)
+
+    @property
+    def termination(self):
+        """
+        How the solve ended. Three states, because the LP-relaxation gap and
+        the solver's own branch-and-bound gap are different quantities:
+
+          "time_limited"       CBC stopped on the time limit with an incumbent.
+                               The objective is a LOWER BOUND and must be
+                               labelled so in any report.
+          "proven"             The measured LP gap is closed, so the integer
+                               optimum is proven by the bound itself.
+          "solver_converged"   CBC exhausted its search within the limit, but
+                               the LP bound is still loose. The LP relaxation of
+                               a multi-dimensional knapsack is weak, so a
+                               non-zero LP gap here does NOT mean the solution
+                               is that far from optimal -- it means the bound
+                               cannot prove otherwise. Report both numbers.
+        """
+        if self.hit_time_limit:
+            return "time_limited"
+        if self.gap is not None and self.gap <= 1e-9:
+            return "proven"
+        return "solver_converged"
+
+    def meets_primary_gap(self, required=REQUIRED_GAP):
+        """
+        Acceptance rule for a PRIMARY result.
+
+        A result is acceptable when the solver was not cut off by the time
+        limit, OR when the measured LP gap is within `required` despite the
+        cut-off. A time-limited result with a wide gap is a lower bound.
+        """
+        if self.termination == "time_limited":
+            return self.gap is not None and self.gap <= required
+        return True
+
+    @property
+    def is_lower_bound(self):
+        """True when the reported objective must be labelled a lower bound."""
+        return not self.meets_primary_gap()
 
     @property
     def n_sown(self):
@@ -112,7 +166,12 @@ class Solution:
         return dict(objective=self.objective_name, objective_value=self.objective,
                     n_sown=self.n_sown, ha_sown=self.ha_sown,
                     merged_fraction=self.merged_fraction,
-                    status=self.status, gap=self.gap,
+                    status=self.status, gap=self.gap, lp_bound=self.lp_bound,
+                    elapsed_s=self.elapsed_s, hit_time_limit=self.hit_time_limit,
+                    proven_optimal=self.proven_optimal,
+                    termination=self.termination,
+                    meets_primary_gap=self.meets_primary_gap(),
+                    is_lower_bound=self.is_lower_bound,
                     n_candidates=self.n_candidates,
                     n_dropped_outside_window=self.n_dropped_outside_window,
                     out_of_domain_fields=self.out_of_domain_fields)
@@ -132,9 +191,13 @@ def _drop_outside_window(cands, days):
     return keep, len(cands) - len(keep)
 
 
-def _build(cands, capacity, days, locked_load=None):
+def _build(cands, capacity, days, locked_load=None, cat="Binary"):
     prob = pulp.LpProblem("anthesis_setpart", pulp.LpMaximize)
-    z = {k: pulp.LpVariable(f"z_{k}", cat="Binary") for k in range(len(cands))}
+    if cat == "Binary":
+        z = {k: pulp.LpVariable(f"z_{k}", cat="Binary") for k in range(len(cands))}
+    else:
+        z = {k: pulp.LpVariable(f"z_{k}", lowBound=0.0, upBound=1.0,
+                                cat="Continuous") for k in range(len(cands))}
 
     by_field = {}
     for k, c in enumerate(cands):
@@ -151,18 +214,42 @@ def _build(cands, capacity, days, locked_load=None):
     return prob, z
 
 
+def _lp_bound(cands, capacity, days, sense_expr_fn, locked_load, extra=None):
+    """
+    Optimal value of the LP relaxation: a valid upper bound on the integer
+    optimum for a maximisation. Used to report a MEASURED optimality gap rather
+    than asserting one from the solver status.
+    """
+    prob, z = _build(cands, capacity, days, locked_load, cat="Continuous")
+    if extra is not None:
+        extra(prob, z, cands)
+    prob += sense_expr_fn(z)
+    prob.solve(pulp.PULP_CBC_CMD(msg=False, threads=1))
+    if pulp.LpStatus[prob.status] != "Optimal":
+        return None
+    return float(pulp.value(prob.objective))
+
+
 def _solve_once(prob, z, cands, sense_expr, time_limit, gap_rel, msg=False):
+    """
+    Solve, and report whether the time limit was reached.
+
+    CBC through PuLP reports status "Optimal" even when it stopped on the time
+    limit with an incumbent, so the status string alone cannot be trusted to
+    mean proven optimality. Measured on the hours capacity model at 20 and 40
+    fields: elapsed 120.5 s against a 120 s limit, status "Optimal", LP gap
+    0.126 and 0.192. Elapsed time is therefore recorded and compared.
+    """
     prob += sense_expr
+    t0 = time.time()
     prob.solve(pulp.PULP_CBC_CMD(msg=msg, timeLimit=time_limit,
                                  gapRel=gap_rel, threads=1))
+    elapsed = time.time() - t0
     status = pulp.LpStatus[prob.status]
     chosen = [cands[k] for k, v in z.items()
               if v.value() is not None and v.value() > 0.5]
-    try:
-        gap = None if status != "Optimal" else 0.0
-    except Exception:                                   # pragma: no cover
-        gap = None
-    return status, chosen, gap
+    hit = time_limit is not None and elapsed >= 0.98 * float(time_limit)
+    return status, chosen, (elapsed, hit)
 
 
 def solve(candidates, capacity, days, objective=PRIMARY_OBJECTIVE,
@@ -190,7 +277,7 @@ def solve(candidates, capacity, days, objective=PRIMARY_OBJECTIVE,
             cover = pulp.lpSum(z[k] for k in range(len(cands)))
         else:
             cover = pulp.lpSum(c.area_ha * z[k] for k, c in enumerate(cands))
-        st, ch, _ = _solve_once(prob, z, cands, cover, time_limit, gap_rel, msg)
+        st, ch, _t1 = _solve_once(prob, z, cands, cover, time_limit, gap_rel, msg)
         if st not in ("Optimal", "Not Solved"):
             return Solution(objective, 0.0, [], st, None, None, len(cands))
         stage1 = (float(len(ch)) if objective == "OBJ-B"
@@ -203,9 +290,30 @@ def solve(candidates, capacity, days, objective=PRIMARY_OBJECTIVE,
         else:
             prob += (pulp.lpSum(c.area_ha * z[k] for k, c in enumerate(cands))
                      >= stage1 - 1e-6)
-    status, chosen, gap = _solve_once(prob, z, cands, yield_expr(z),
-                                      time_limit, gap_rel, msg)
+    status, chosen, (elapsed, hit_limit) = _solve_once(
+        prob, z, cands, yield_expr(z), time_limit, gap_rel, msg)
     total = float(sum(c.area_r for c in chosen))
+
+    # MEASURED optimality gap: (LP bound - integer value) / LP bound.
+    # Reported for every solve so an unclosed gap is visible rather than
+    # inferred from the solver's status string.
+    extra = None
+    if stage1 is not None:
+        s1, obj = stage1, objective
+        def extra(prob, zz, cc, _s1=s1, _obj=obj):
+            if _obj == "OBJ-B":
+                prob += pulp.lpSum(zz[k] for k in range(len(cc))) >= _s1 - 1e-6
+            else:
+                prob += (pulp.lpSum(c.area_ha * zz[k] for k, c in enumerate(cc))
+                         >= _s1 - 1e-6)
+    bound = _lp_bound(cands, capacity, days, yield_expr, locked_load, extra)
+    gap = None
+    if bound is not None and bound > 1e-12:
+        gap = max(0.0, (bound - total) / bound)
+
     sol = Solution(objective, total, chosen, status, gap, stage1, len(cands))
     sol.n_dropped_outside_window = n_dropped
+    sol.lp_bound = bound
+    sol.elapsed_s = elapsed
+    sol.hit_time_limit = hit_limit
     return sol

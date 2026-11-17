@@ -1,0 +1,17 @@
+Deterministic solver-scaling check. Seeds fixed; no experiment is run.
+window 31 days, scenario winter_y1/PL2/k=1.5
+
+model         N  cands         Z   LPbound      gap   t(s)    status   T7.5      termination lowerbound
+visits       10    831   26.2048   26.2736  0.00262   0.09   Optimal   True solver_converged      False
+visits       20   1565   33.7151   33.7151  0.00000   0.14   Optimal   True           proven      False
+visits       40   3133   42.3298   42.4114  0.00192   0.32   Optimal   True solver_converged      False
+operations   10    831   25.0428   25.3246  0.01113   0.21   Optimal   True solver_converged      False
+operations   20   1565   28.6281   29.0147  0.01332   0.74   Optimal   True solver_converged      False
+operations   40   3133   34.2680   34.2811  0.00039   0.39   Optimal   True solver_converged      False
+hours        10    831   25.0428   26.8728  0.06810   4.29   Optimal   True solver_converged      False
+hours        20   1565   28.5089   32.6060  0.12565 120.42   Optimal   True     time_limited       True
+hours        40   3133   32.2591   39.9230  0.19197 120.32   Optimal   True     time_limited       True
+
+Acceptance: primary results require proven Optimal or measured gap <= 0.005.
+A larger gap means the objective is a LOWER BOUND and must be labelled so.
+The gap is MEASURED against the LP relaxation, not taken from solver status.
