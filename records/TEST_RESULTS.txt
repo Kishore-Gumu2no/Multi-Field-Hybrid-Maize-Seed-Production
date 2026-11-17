@@ -11,6 +11,8 @@ tests/test_t02_pairs.py::test_t2_2_sg3_delta_plus_1p5_gives_1p5 PASSED
 tests/test_t02_pairs.py::test_t2_3_sg1_rejects_male_silking_with_female PASSED
 tests/test_t02_pairs.py::test_t2_4a_grand_mean_admissibility PASSED     
 tests/test_t02_pairs.py::test_t2_4b_per_year_admissibility_is_strictly_stronger PASSED
+tests/test_t02_pairs.py::test_t2_4c_years_tau_variant_is_stronger_still PASSED
+tests/test_t02_pairs.py::test_t2_4d_both_e4_strata_are_populated PASSED 
 tests/test_t02_pairs.py::test_t2_4b_old_rule_would_admit_negative_delta PASSED
 tests/test_t02_pairs.py::test_t2_5_sweeping_asi_holds_tsi0_and_moves_delta PASSED
 tests/test_t02_pairs.py::test_t10_1_admissible_pair_count_is_reported PASSED
@@ -108,3 +110,14 @@ tests/test_t08_t11_optimise.py::test_t8_5_gap_is_reported_and_primary_results_ar
 tests/test_t08_t11_optimise.py::test_t8_6_determinism_identical_objective_and_selection PASSED
 tests/test_t08_t11_optimise.py::test_t8_at_most_one_schedule_per_field PASSED
 tests/test_t08_t11_optimise.py::test_unknown_objective_rejected PASSED  
+tests/test_t12_objective_fixtures.py::test_f1_merging_bias[OBJ-A] PASSED
+tests/test_t12_objective_fixtures.py::test_f1_merging_bias[OBJ-B] PASSED
+tests/test_t12_objective_fixtures.py::test_f1_merging_bias[OBJ-C] PASSED
+tests/test_t12_objective_fixtures.py::test_f1_obj_c_does_NOT_fix_the_merging_bias PASSED
+tests/test_t12_objective_fixtures.py::test_f2_area_blindness[OBJ-A] PASSED
+tests/test_t12_objective_fixtures.py::test_f2_area_blindness[OBJ-B] PASSED
+tests/test_t12_objective_fixtures.py::test_f2_area_blindness[OBJ-C] PASSED
+tests/test_t12_objective_fixtures.py::test_f2_obj_b_gives_up_eighty_percent_of_the_objective PASSED
+tests/test_t12_objective_fixtures.py::test_f2_obj_c_repairs_what_obj_b_breaks PASSED
+tests/test_t12_objective_fixtures.py::test_f1_and_f2_together_discriminate_all_three PASSED
+tests/test_t12_objective_fixtures.py::test_f3_real_farm_under_pressure_separates_the_objectives PASSED

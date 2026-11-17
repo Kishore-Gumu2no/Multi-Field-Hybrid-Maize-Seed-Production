@@ -42,6 +42,8 @@ Audit recorded in `records/AUDIT_PHASE3.md` **before** any modification.
 | D3 | integration timeout | The pollen overlap integral was recomputed per candidate per weather year -- an 8000-point quadrature, 44k times | Memoised on `(TSI, gap, params)`; `PollenParams` is frozen and hashable so a swept set never reads another's cache |
 | D4 | `T11` fixture review | My first counterexample fixture was internally inconsistent: a same-day plan carrying a two-visit cost | Rebuilt over two days with capacity 1/day |
 | D5 | `T1.1` | The test asserted an identity across mismatched aggregation levels (grand-mean `Delta` against a per-day mean) | Test corrected, not the code; reason recorded in the test docstring |
+| D6 | closure audit | **Per-year admissibility applied the tau range instead of the scoring domain**, which is stricter than Phase 2 section 6.3 rule 4 specifies. Cut the population from 12 pairs to 6 and left one pair in the hard stratum E4 needs | `scope="years"` corrected; stricter reading kept as `scope="years_tau"` (P3-D8); tests T2.4b, T2.4c, T2.4d |
+| D7 | closure audit | The six-field smoke instance could not distinguish OBJ-A / OBJ-B / OBJ-C, because at 56% capacity utilisation the coverage constraint is slack | Three discriminating fixtures added in `tests/test_t12_objective_fixtures.py` |
 
 ## Scope held
 
@@ -55,5 +57,7 @@ content hash is recorded with every result row.
     ./run_tests.sh              # all 110 tests, one line each
     ./run_tests.sh blocking     # the starred/blocking subset only
     ./run_tests.sh T7           # one group
+
+Test groups: T1-T11 plus T12 (objective-discriminating fixtures).
 
 Per-test evidence: `records/TEST_RESULTS.txt`. Diagnostics: `records/DIAGNOSTICS.txt`.

@@ -51,10 +51,10 @@ with pair difficulty.
 
 | # | Limitation | Measured value |
 | --- | --- | --- |
-| L8 | Few admissible pairs, so fields within a farm are **not independent draws** | 6 of 56 ordered pairs at `rho = 1.0`; 13 on the grand mean; 12 at `rho = 0.8`. At 40 fields, **6.67 repeats per pair** |
-| L9 | Some pairs differ in a **single** flowering coefficient | 2 of the 6; PC0001-PC0005 share `P2` 0.750 and `PHINT` 49.00 |
+| L8 | Few admissible pairs, so fields within a farm are **not independent draws** | **12 of 56** ordered pairs under the spec per-year rule; 13 on the grand mean; 6 under the stricter `years_tau` variant. At 40 fields, **3.33 repeats per pair** |
+| L9 | Some pairs differ in a **single** flowering coefficient | PC0001-PC0005 share `P2` 0.750 and `PHINT` 49.00, so pairs within that family differ in `P1` alone |
 | L10 | Only **two** distinct `PHINT` values exist in the table | 38.90 and 49.00 |
-| L11 | `dTSI/doffset` **under-covers** the observed range | synthetic 0.98-1.04 d/d; observed 1.00 (UAS) and **1.58** (Marahatta); shortfall 0.54 |
+| L11 | `dTSI/doffset` **under-covers** the observed range | synthetic 0.98-1.04 d/d; observed 1.00 (UAS) and **1.58** (Marahatta); shortfall 0.54. *DERIVED*: the synthetic population needs **58% more offset days** for the same TSI move -- e.g. 4.39 d against 2.78 d to bring a `TSI(0) = +5.39` pair to the plateau. The bias works **against** the merging mechanism, since wider offsets mean fewer co-sowing opportunities |
 | - | Across-year SD of `TSI(0)`, which the value of replanning depends on, **is** in the right range | 1.06-1.76 d against ~1.5 d from Target 1A |
 
 L11 is the one that touches the headline mechanism: a shallower slope means

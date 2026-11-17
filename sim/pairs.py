@@ -240,19 +240,36 @@ def admissible_pairs(ph, sow_day, asi0=ASI0_DEFAULT, scope="years",
     """
     Admissible ordered pairs, sorted by same-day TSI.
 
-    scope "mean"     -- grand-mean TSI(0) within range (the superseded weaker test)
-    scope "years"    -- TSI(0) within range in EVERY weather year (X6, primary)
-    scope "fraction" -- TSI(0) within range in at least `rho` of years, the
-                        relaxed variant allowed by Phase 2 section 6.3 rule 4.
-                        Reported as a labelled variant, never as the primary.
+    TWO DIFFERENT RANGES ARE IN PLAY and must not be conflated:
 
-    Requiring every year is strict: it leaves 6 of 56 ordered pairs, against 13
-    on the grand mean. The relaxed scope exists because 6 pairs for a 40-field
-    farm makes fields strongly non-independent; whichever scope is used must be
-    reported with the result.
+      tau range  [TAU_MIN, TAU_MAX] = [0, +8] d
+          Agronomic plausibility of the PAIR. "Would a producer plant this
+          cross?" Applied to the pair's central behaviour.
+
+      scoring domain  [response.TSI_LO, response.TSI_HI] = [-3.75, +13.75] d
+          Where the yield response is defined at all. Applied PER YEAR, because
+          a year whose TSI falls outside it cannot be scored.
+
+    Phase 2 section 6.3 rule 4 applies the DOMAIN per year, not the tau range.
+    The first Phase 3 implementation applied the tau range per year, which is
+    strictly stronger and rejects pairs for a reason the evidence does not
+    support: a cross whose same-day TSI dips to -1 d in the coldest year out of
+    21 is still an entirely ordinary seed-production cross. That over-reading
+    cut the population from 12 pairs to 6 and was corrected in the Phase 3
+    closure audit.
+
+    scope "mean"      -- grand-mean TSI(0) within the tau range only
+    scope "years"     -- mean within tau AND every year within the scoring
+                         domain. The PRIMARY reading, matching the spec
+    scope "years_tau" -- every year within the TAU range. Strictly stronger
+                         than the spec requires; retained as a labelled
+                         conservative variant and as the superseded behaviour
+    scope "fraction"  -- mean within tau AND at least `rho` of years within the
+                         scoring domain
     """
-    if scope not in ("mean", "years", "fraction"):
+    if scope not in ("mean", "years", "years_tau", "fraction"):
         raise ValueError(f"unknown scope {scope!r}")
+    from . import response as _resp
     out = []
     for cm in ph.cultivars:
         for cf in ph.cultivars:
@@ -261,16 +278,22 @@ def admissible_pairs(ph, sow_day, asi0=ASI0_DEFAULT, scope="years",
             p = pair_info(ph, cm, cf, sow_day, asi0)
             if p is None:
                 continue
+            mean_ok = tau_min - 1e-9 <= p.tsi0_mean <= tau_max + 1e-9
             if scope == "mean":
-                ok = tau_min - 1e-9 <= p.tsi0_mean <= tau_max + 1e-9
-            elif scope == "years":
+                ok = mean_ok
+            elif scope == "years_tau":
                 ok = (tau_min - 1e-9 <= p.tsi0_min
                       and p.tsi0_max <= tau_max + 1e-9)
+            elif scope == "years":
+                ok = (mean_ok
+                      and p.tsi0_min >= _resp.TSI_LO - 1e-9
+                      and p.tsi0_max <= _resp.TSI_HI + 1e-9)
             else:
                 t = delta_series(ph, cm, cf, sow_day) - asi0
                 t = t[np.isfinite(t)]
-                inside = ((t >= tau_min - 1e-9) & (t <= tau_max + 1e-9)).mean()
-                ok = bool(t.size) and inside >= rho - 1e-9
+                inside = ((t >= _resp.TSI_LO - 1e-9)
+                          & (t <= _resp.TSI_HI + 1e-9)).mean()
+                ok = mean_ok and bool(t.size) and inside >= rho - 1e-9
             if ok:
                 out.append(p)
     return sorted(out, key=lambda q: q.tsi0_mean)
@@ -333,6 +356,7 @@ def population_report(ph, sow_day, asi0=ASI0_DEFAULT, n_fields=20):
     mean_set = admissible_pairs(ph, sow_day, asi0, "mean")
     year_set = admissible_pairs(ph, sow_day, asi0, "years")
     frac_set = admissible_pairs(ph, sow_day, asi0, "fraction", rho=0.8)
+    tau_set = admissible_pairs(ph, sow_day, asi0, "years_tau")
     n_adm = len(year_set) or len(mean_set)
     slopes = [p.slope for p in year_set if np.isfinite(p.slope)]
     return {
@@ -344,6 +368,7 @@ def population_report(ph, sow_day, asi0=ASI0_DEFAULT, n_fields=20):
         "n_admissible_mean": len(mean_set),
         "n_admissible_years": len(year_set),
         "n_admissible_rho80": len(frac_set),
+        "n_admissible_years_tau": len(tau_set),
         "n_single_coefficient_pairs": sum(1 for p in year_set if p.single_coefficient),
         "slope_observed": dict(SLOPE_OBSERVED),
         "slope_range": (min(slopes), max(slopes)) if slopes else (np.nan, np.nan),

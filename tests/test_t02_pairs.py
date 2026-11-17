@@ -48,21 +48,49 @@ def test_t2_4a_grand_mean_admissibility(ph, ref_day):
 
 def test_t2_4b_per_year_admissibility_is_strictly_stronger(ph, ref_day):
     """
-    X6: admissibility must hold in EVERY ensemble year, not on average.
+    X6: admissibility must be checked per weather year, not on average.
 
-    This is the regression test for Supplement gap 3. Pairs admitted on the
-    grand mean fall outside [0, +8] in individual years, so the per-year set
-    must be a strict subset.
+    The per-year scope applies the SCORING DOMAIN per year (Phase 2 s6.3
+    rule 4) on top of the tau range on the mean, so it is a strict subset of
+    the mean-only set: a pair whose TSI leaves [-3.75, +13.75] in some year
+    cannot be scored in that year.
     """
+    from sim import response
     mean_set = {(p.cult_m, p.cult_f) for p in pairs.admissible_pairs(ph, ref_day, scope="mean")}
     year_set = {(p.cult_m, p.cult_f) for p in pairs.admissible_pairs(ph, ref_day, scope="years")}
     assert year_set <= mean_set
-    assert year_set != mean_set, (
-        "per-year admissibility rejected nothing the mean admitted; "
-        "the Supplement found PC0005xPC0001 and 990002xIB0012 should fail")
+    assert year_set != mean_set, "per-year admissibility rejected nothing"
     for p in pairs.admissible_pairs(ph, ref_day, scope="years"):
-        assert pairs.TAU_MIN - 1e-9 <= p.tsi0_min, p
-        assert p.tsi0_max <= pairs.TAU_MAX + 1e-9, p
+        assert pairs.TAU_MIN - 1e-9 <= p.tsi0_mean <= pairs.TAU_MAX + 1e-9, p
+        assert p.tsi0_min >= response.TSI_LO - 1e-9, p
+        assert p.tsi0_max <= response.TSI_HI + 1e-9, p
+
+
+def test_t2_4c_years_tau_variant_is_stronger_still(ph, ref_day):
+    """
+    The conservative variant applies the TAU RANGE per year. It is strictly
+    stronger than the spec requires and is retained as a labelled variant.
+
+    Recorded because the first Phase 3 implementation used it by mistake,
+    cutting the population from 12 pairs to 6 and leaving only one pair in the
+    hard [+5, +8] stratum that experiment E4 needs.
+    """
+    spec = {(p.cult_m, p.cult_f) for p in pairs.admissible_pairs(ph, ref_day, scope="years")}
+    tau = {(p.cult_m, p.cult_f) for p in pairs.admissible_pairs(ph, ref_day, scope="years_tau")}
+    assert tau < spec, (len(tau), len(spec))
+    for p in pairs.admissible_pairs(ph, ref_day, scope="years_tau"):
+        assert pairs.TAU_MIN - 1e-9 <= p.tsi0_min
+        assert p.tsi0_max <= pairs.TAU_MAX + 1e-9
+
+
+def test_t2_4d_both_e4_strata_are_populated(ph, ref_day):
+    """
+    E4 needs an easy-only [0, +2] and a hard-only [+5, +8] subpopulation.
+    A stratum with one pair is not a subpopulation.
+    """
+    t = [p.tsi0_mean for p in pairs.admissible_pairs(ph, ref_day, scope="years")]
+    assert sum(1 for v in t if 0 <= v <= 2) >= 2, "easy stratum too thin"
+    assert sum(1 for v in t if 5 <= v <= 8) >= 2, "hard stratum too thin"
 
 
 def test_t2_4b_old_rule_would_admit_negative_delta(ph):
