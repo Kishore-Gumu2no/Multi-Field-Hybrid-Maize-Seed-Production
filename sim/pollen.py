@@ -59,6 +59,7 @@ and this model is the robustness alternative (P2-D13, E9).
 """
 
 from dataclasses import dataclass
+from functools import lru_cache
 
 import numpy as np
 from scipy.stats import beta as _beta
@@ -130,13 +131,7 @@ def pollen_mass(tsi, gap=None, pp=DEFAULT):
     return float(np.trapezoid(total_pollen(t, tsi, gap, pp), t))
 
 
-def overlap_fraction(tsi, gap=None, pp=DEFAULT):
-    """
-    Fraction of silks pollinated, in [0, 1].
-
-    Saturating: beyond a certain load more pollen fertilises no more ovules.
-        O = int s(t) [1 - exp(-lam P(t))] dt  /  int s(t) dt
-    """
+def _overlap_fraction_uncached(tsi, gap, pp):
     t = pp.axis()
     s = silk_receptivity(t, pp)
     den = float(np.trapezoid(s, t))
@@ -145,6 +140,30 @@ def overlap_fraction(tsi, gap=None, pp=DEFAULT):
     P = total_pollen(t, tsi, gap, pp)
     num = float(np.trapezoid(s * (1.0 - np.exp(-pp.lam * P)), t))
     return num / den
+
+
+@lru_cache(maxsize=200_000)
+def _overlap_cached(tsi_key, gap_key, pp):
+    return _overlap_fraction_uncached(tsi_key, gap_key, pp)
+
+
+def overlap_fraction(tsi, gap=None, pp=DEFAULT):
+    """
+    Fraction of silks pollinated, in [0, 1].
+
+    Saturating: beyond a certain load more pollen fertilises no more ovules.
+        O = int s(t) [1 - exp(-lam P(t))] dt  /  int s(t) dt
+
+    Memoised on (TSI, gap, parameters) rounded to 1e-6 d. DSSAT TSI values are
+    integer day differences less a constant ASI0, so the cache hits on nearly
+    every call; without it the candidate builder recomputes an 8000-point
+    quadrature per candidate per weather year. `PollenParams` is frozen and
+    hashable, so the parameters are part of the key and a swept parameter set
+    never reads another set's cache.
+    """
+    tk = round(float(tsi), 6)
+    gk = None if gap is None else round(float(gap), 6)
+    return _overlap_cached(tk, gk, pp)
 
 
 def overlap_relative(tsi, gap=None, pp=DEFAULT):
