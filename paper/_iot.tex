@@ -184,13 +184,20 @@ zero-belief fallback.
 Every capacity-constrained cell reported above was solved on the visits model
 with a measured LP gap of median $0.0001$ and maximum $0.0003$, well inside
 the $0.005$ acceptance rule, and no arm terminated on the time limit. The
-operations, hours and hectares accounting models do not solve to that standard
-at $N=60$ within a practical budget: at a 45\,s limit every arm terminated
-time-limited with gaps of $0.011$--$0.034$, which exceeds the effect being
-measured and produced at least one spurious negative oracle gain. Those cells
-are lower bounds and are excluded from inference rather than reported.
-Robustness of the conclusion to capacity accounting is therefore \emph{not}
-established here, and is listed as a limitation.
+operations, hours and hectares accounting models do not reach that standard at
+$N=60$, and more solver time does not help. At a 45\,s limit every arm
+terminated time-limited with measured gaps of $0.011$--$0.034$; raising the
+limit to $300$\,s left the gaps on the same cell unchanged to five decimal
+places ($0.01140$, $0.02253$, $0.01441$) at twenty times the cost. The
+limitation is the quality of the LP bound for these cost structures, not
+search time: the relaxation of a multi-dimensional knapsack is weak, so a
+non-zero gap here means the bound cannot prove optimality rather than that the
+incumbent is that far from it. By the acceptance rule those cells are lower
+bounds, their spread exceeds the effect being measured, and one produced a
+negative oracle gain that cannot be real because the oracle optimises the
+objective it is scored on. They are excluded from inference rather than
+reported. Robustness of the conclusion to capacity accounting is therefore
+\emph{not} established here, and is listed as a limitation.
 
 \subsection{What this does and does not establish}
 

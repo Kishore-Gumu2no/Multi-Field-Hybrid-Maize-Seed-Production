@@ -14,9 +14,11 @@ Ordered by how much each could change the conclusion.
 2. **Robustness to capacity accounting is not established.** Only the visits
    model solved within the 0.005 acceptance gap at N=60. Operations, hours and
    hectares all terminated time-limited with gaps of 0.011–0.034 at a 45 s
-   limit — wider than the effect — and one produced a spurious negative oracle
-   gain. Those cells are lower bounds and were excluded. A longer solver budget
-   would settle whether the result holds under the other three accountings.
+   limit — wider than the effect — and one produced a negative oracle gain that
+   cannot be real. Raising the limit to 300 s left those gaps unchanged to five
+   decimals, so this is LP bound looseness for these cost structures, not
+   search time. Settling it needs a stronger formulation or valid inequalities,
+   not a longer budget.
 
 3. **No measurement of any kind was taken.** Every sensor reading is
    synthetic. No probe was built, deployed or tested, and no claim is made
