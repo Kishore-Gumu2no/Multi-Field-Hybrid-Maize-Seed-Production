@@ -1,0 +1,181 @@
+% ---------------------------------------------------------------------------
+% Simulated soil-temperature sensing. Slots in after the capacity section.
+% Every figure and number here is produced by run_iot.py; see
+% records/E7_replicate_stats.json and results_rep/E7_iot_summary.csv.
+% ---------------------------------------------------------------------------
+\section{Does field-level soil-temperature sensing change the schedule?}
+\label{sec:iot}
+
+\subsection{The gap the sensor would fill}
+
+CERES-Maize does not run the phase that sets flowering date on air
+temperature. While \texttt{LEAFNO .LE. 10}---the leaf-appearance phase---
+\texttt{MZ\_PHENOL.for} (lines 457--496) forms daily thermal time from
+\emph{soil} temperature, which it estimates from air temperature and solar
+radiation:
+%
+\begin{align}
+a &= 0.01061\,\mathrm{SRAD} + 0.5902, \label{eq:acoef}\\
+T_{\mathrm{day}} &= a\,T_{\max} + (1-a)\,T_{\min}, \label{eq:tdsoil}\\
+T_{\mathrm{night}} &= 0.36354\,T_{\max} + 0.63646\,T_{\min}, \label{eq:tnsoil}\\
+\Delta T\!T &= \tfrac{1}{2}\!\left[\max(T_{\mathrm{night}},T_b)
+  + \min(T_{\mathrm{day}},D_{\mathrm{opt}})\right] - T_b, \label{eq:dtt}
+\end{align}
+%
+with $T_b=8.0$\,\textdegree C and $D_{\mathrm{opt}}=34.0$\,\textdegree C from
+the shipped \texttt{MZCER048.ECO}, and $\Delta TT$ then capped at
+$D_{\mathrm{opt}}-T_b$. The clamps in~\eqref{eq:dtt} are applied to each
+component \emph{before} the average: a $40/20$\,\textdegree C pair yields
+$19.0$, whereas averaging first would yield $22.0$.
+
+Equations~\eqref{eq:acoef}--\eqref{eq:tnsoil} contain no field-specific term.
+Two fields under one weather station receive identical estimated soil
+temperature whatever their soil, texture, colour, residue cover or drainage
+actually do. That imputation is the gap a buried probe would close, and it is
+the only point in the model where a soil-temperature measurement has anywhere
+to enter.
+
+\subsection{Simulation design}
+
+\paragraph{Nothing here is a measurement.} No soil-temperature observation was
+obtained for this study. Paired 5\,cm bare and vegetated probes exist in the
+Oklahoma Mesonet but sit behind an interactive request form and a
+robots-disallowed endpoint; USCRN publishes no probe-level soil temperature,
+both its daily and sub-hourly readme files stating that the reported soil
+values are ``calculated from these multiple independent measurements''. The
+sensing layer is therefore explicitly simulated, and every parameter of it is
+recorded on each result row.
+
+\paragraph{Substrate.} We implement \eqref{eq:acoef}--\eqref{eq:dtt} directly
+and calibrate one thermal threshold per cultivar against the study's existing
+DSSAT table (8 cultivars $\times$ 21 weather years $\times$ 61 sowing days,
+$n=1281$ per cultivar). The soil pathway reproduces the table to
+$2.62$\,d RMSE with mean absolute bias $0.14$\,d, against $2.70$\,d for the
+same arithmetic applied to air temperature. We use this as a self-consistent
+substrate rather than as a claim to reproduce DSSAT: truth and both planners
+run on it, so its absolute error cancels in the paired comparison, and its
+bias---the quantity that would \emph{not} cancel---is near zero.
+
+\paragraph{Heterogeneity.} Each field receives a constant soil thermal offset
+$\delta_i$. The default scale $\sigma=0.7$\,\textdegree C is not chosen here:
+it is the value already carried by \texttt{sim.core.make\_farm} as
+\texttt{temp\_bias=rng.normal(0.0,\,0.7)}, committed before this analysis
+existed. $\sigma$ is swept from $0$ regardless, and $\sigma=0$ is a null
+scenario in which the sensor must show nothing.
+
+\paragraph{Measurement.} A virtual probe reads the field's soil temperature
+with Gaussian noise of $0.5$\,\textdegree C---the documented accuracy of the
+Mesonet thermistors whose data we could not obtain---and misses days at a
+configurable rate. The estimator $\hat\delta_i$ is the mean over observed days
+of the residual between the measurement and the temperature
+\eqref{eq:tdsoil}--\eqref{eq:tnsoil} would impute. Observation closes on day
+273, before the sowing window opens on day 274, so the channel is
+non-anticipative: a field offset is a persistent property, not a forecast.
+
+\paragraph{Arms.} Three planners differ only in belief. \textsc{conventional}
+believes every offset is zero, which is exactly what CERES does.
+\textsc{sensor} believes $\hat\delta_i$, falling back to zero where estimation
+failed. \textsc{oracle} believes the truth; it is unachievable and bounds the
+gain. All three are scored against the same truth through
+\texttt{scoring.score\_plan}, so the objective coefficient and the execution
+score are the same number by construction.
+
+\subsection{Results}
+
+\begin{table}[t]
+\centering
+\caption{Change in objective against the conventional CERES pathway, mean over
+12 farm seeds with 95\% confidence intervals. $n=12$ fields, 21 weather years.}
+\label{tab:iot}
+\begin{tabular}{lrrrrr}
+\toprule
+$\sigma$ (\textdegree C) & sensor (\%) & 95\% CI & seeds $>0$ & oracle (\%) & captured \\
+\midrule
+0.00 & $-0.164$ & $[-0.185,-0.143]$ & 0/12 & $+0.000$ & --- \\
+0.50 & $-0.025$ & $[-0.071,+0.021]$ & 4/12 & $+0.170$ & --- \\
+0.70 & $+0.041$ & $[-0.035,+0.117]$ & 7/12 & $+0.255$ & 0.16 \\
+1.00 & $+0.178$ & $[+0.074,+0.282]$ & 10/12 & $+0.369$ & 0.48 \\
+2.00 & $+1.079$ & $[+0.787,+1.372]$ & 12/12 & $+1.431$ & 0.75 \\
+4.00 & $+5.010$ & $[+3.910,+6.111]$ & 12/12 & $+5.324$ & 0.94 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:iot} and Figure~\ref{fig:iot} give the result. Three findings
+stand out, and the first two are negative.
+
+\textbf{At zero heterogeneity the sensor does measurable harm.} With
+$\sigma=0$ the oracle gain is exactly zero, as it must be, while the sensor
+loses $0.164\%$ $[-0.185,-0.143]$, negative in all twelve seeds. Measurement
+noise is read as offset, and the planner acts on phantom differences. A
+sensing layer that cannot be shown to do nothing when there is nothing to
+detect would not be trustworthy when it reports something; here it does
+something, and that something is damage.
+
+\textbf{At the heterogeneity this study already assumed, the sensor is
+indistinguishable from no sensor.} At $\sigma=0.7$\,\textdegree C the sensor
+gains $0.041\%$ with a confidence interval spanning zero, and is positive in
+only seven of twelve seeds. The information is real---the oracle gains
+$0.255\%$ $[+0.207,+0.302]$---but the sensor extracts about a sixth of it,
+which is not enough to clear its own noise.
+
+\textbf{The sensor earns its keep only once the between-field spread exceeds
+roughly twice the probe accuracy.} The gain becomes reliably positive at
+$\sigma=1.0$\,\textdegree C, where it captures $48\%$ of the oracle, and
+approaches the oracle at $\sigma\geq2$. With probe noise at
+$0.5$\,\textdegree C this is the signal-to-noise crossing, which is the
+mechanism rather than a coincidence: noiseless observation recovers the full
+oracle gain ($+0.431\%$ against $+0.431\%$ in the single-seed ablation),
+and raising noise to $1.0$\,\textdegree C removes almost all of it.
+
+\textbf{Even perfect knowledge is worth little at plausible heterogeneity.}
+The oracle ceiling is $0.26\%$ of objective at $\sigma=0.7$. The mean absolute
+TSI improves from 1.163\,d to 1.095\,d---about 1.6 hours of synchrony.
+
+\subsection{Ablations and controls}
+
+Total missingness returns exactly $+0.000\%$ with no plan changed, confirming
+the fallback path. Replacing the soil pathway with the same clamp arithmetic
+on air temperature drops the oracle gain from $+0.431\%$ to $+0.217\%$,
+indicating that roughly half the available information is specific to the
+soil pathway rather than to the CERES constants. Bimodal and gradient
+heterogeneity of the same scale yield smaller oracle gains ($+0.277\%$ and
+$+0.152\%$) than the Gaussian case, so the headline scenario is not the
+conservative one. Extending observation from 1 to 40 days does not
+systematically improve the estimate, because at 20 days the estimator's
+standard error is already $0.11$\,\textdegree C, well below the offsets being
+estimated.
+
+Narrowing the male--female offset freedom from eleven candidate offsets to two
+raises the oracle gain from $+0.256\%$ to $+0.724\%$---information is worth
+more when fewer other levers remain---but the sensor's interval still spans
+zero at every level. Operationally the sensor-informed schedule is free: it
+uses 9.6 distinct sowing days against 11.0 for the conventional arm, with the
+same mean male--female offset and the same spread of sowing dates.
+
+\subsection{What this does and does not establish}
+
+It establishes, inside this model and with simulated sensing, that the
+decision value of per-field soil-temperature measurement is governed by one
+ratio: between-field heterogeneity against probe accuracy. Below unity the
+measurement is net harmful; around twice unity it pays. That is a transferable
+statement about when such a system is worth building, and it is derived rather
+than assumed.
+
+It does not establish what the between-field heterogeneity of a commercial
+hybrid seed-production block actually is. Published same-site contrasts at
+5\,cm run 1--6\,\textdegree C between deliberately imposed treatments---mulch
+against bare soil, no-till against ploughed---but a seed-production block is
+managed uniformly, and the one continuous relationship available, soil
+temperature against percent residue cover at 0.0112--0.0293\,\textdegree C per
+point, implies 0.11--0.59\,\textdegree C between fields under one protocol.
+That range falls in the region where this study finds the sensor net negative.
+Establishing the real figure requires paired measurements we were unable to
+obtain, and the retrieval barriers are documented rather than worked around.
+
+The emulator's 2.6\,d RMSE against DSSAT exceeds the one-day decision unit;
+the comparison is paired so this cancels, but it would not cancel for any
+absolute claim about flowering date. Finally, the result is a per-field best
+response: the capacity-constrained optimiser is not exercised here, and since
+constraints can only remove the freedom to act on information, the figures
+above are upper bounds on what a constrained planner would realise.

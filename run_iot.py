@@ -225,6 +225,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--sweep", action="store_true")
     ap.add_argument("--replicate", action="store_true")
+    ap.add_argument("--sigmas", default="")
+    ap.add_argument("--operational", action="store_true")
     ap.add_argument("--n-fields", type=int, default=12)
     ap.add_argument("--out", default="results")
     a = ap.parse_args()
@@ -268,9 +270,22 @@ def main():
 
     if a.replicate:
         print("REPLICATED SIGMA GRID (12 farm/offset seeds per level)")
-        for s in (0.0, 0.5, 0.7, 1.0, 2.0, 4.0):
+        levels = ([float(x) for x in a.sigmas.split(",")] if a.sigmas
+                  else [0.0, 0.5, 0.7, 1.0, 2.0, 4.0])
+        for s in levels:
             for sd in range(11, 23):
                 do(f"rep_sigma{s}_seed{sd}", SE.SensingConfig(sigma_c=s, seed=sd))
+                # write incrementally so a stopped run keeps its results
+                write_rows(os.path.join(a.out, "E7_iot_summary.csv"), all_sum)
+
+    if a.operational:
+        print("OPERATIONAL FEASIBILITY: narrowing the male-female offset freedom")
+        for lo, hi, name in ((-4, 7, "full"), (-2, 5, "tight"), (-1, 3, "tighter"),
+                             (0, 2, "minimal"), (0, 1, "co-sown only")):
+            for sd in (11, 12, 13, 14, 15, 16):
+                do(f"op_{name}_seed{sd}", SE.SensingConfig(seed=sd),
+                   offsets=tuple(range(lo, hi)))
+                write_rows(os.path.join(a.out, "E7_iot_summary.csv"), all_sum)
 
     if a.sweep:
         print("SIGMA SWEEP")

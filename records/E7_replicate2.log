@@ -1,0 +1,32 @@
+PRIMARY
+  primary                            sensor +0.219%  oracle +0.431%  plans changed  7/12
+NULL SCENARIO (sigma = 0: the sensor must show nothing)
+  null_homogeneous                   sensor -0.120%  oracle +0.000%  plans changed  5/12
+  null_sigma0                        sensor -0.120%  oracle +0.000%  plans changed  5/12
+REPLICATED SIGMA GRID (12 farm/offset seeds per level)
+  rep_sigma2.0_seed11                sensor +1.159%  oracle +1.417%  plans changed  8/12
+  rep_sigma2.0_seed12                sensor +1.178%  oracle +1.488%  plans changed  9/12
+  rep_sigma2.0_seed13                sensor +2.416%  oracle +2.862%  plans changed  8/12
+  rep_sigma2.0_seed14                sensor +1.403%  oracle +1.726%  plans changed  9/12
+  rep_sigma2.0_seed15                sensor +0.734%  oracle +1.082%  plans changed 11/12
+  rep_sigma2.0_seed16                sensor +0.711%  oracle +1.065%  plans changed  8/12
+  rep_sigma2.0_seed17                sensor +1.160%  oracle +1.664%  plans changed  8/12
+  rep_sigma2.0_seed18                sensor +0.613%  oracle +0.742%  plans changed 11/12
+  rep_sigma2.0_seed19                sensor +0.448%  oracle +0.869%  plans changed  8/12
+  rep_sigma2.0_seed20                sensor +0.885%  oracle +1.047%  plans changed  7/12
+  rep_sigma2.0_seed21                sensor +0.878%  oracle +1.360%  plans changed 10/12
+  rep_sigma2.0_seed22                sensor +1.367%  oracle +1.847%  plans changed  7/12
+  rep_sigma4.0_seed11                sensor +3.318%  oracle +3.435%  plans changed  9/12
+  rep_sigma4.0_seed12                sensor +5.363%  oracle +5.572%  plans changed 10/12
+  rep_sigma4.0_seed13                sensor +3.266%  oracle +3.675%  plans changed 10/12
+  rep_sigma4.0_seed14                sensor +6.050%  oracle +6.483%  plans changed 11/12
+  rep_sigma4.0_seed15                sensor +4.977%  oracle +5.076%  plans changed 11/12
+  rep_sigma4.0_seed16                sensor +3.355%  oracle +3.804%  plans changed 10/12
+  rep_sigma4.0_seed17                sensor +5.261%  oracle +5.478%  plans changed 11/12
+  rep_sigma4.0_seed18                sensor +4.464%  oracle +4.543%  plans changed 11/12
+  rep_sigma4.0_seed19                sensor +3.266%  oracle +3.797%  plans changed  9/12
+  rep_sigma4.0_seed20                sensor +4.002%  oracle +4.365%  plans changed 10/12
+  rep_sigma4.0_seed21                sensor +6.931%  oracle +7.625%  plans changed 10/12
+  rep_sigma4.0_seed22                sensor +9.874%  oracle +10.031%  plans changed 12/12
+
+wrote results_rep2/E7_iot_rows.csv (972 rows), results_rep2/E7_iot_summary.csv (27 configs)
