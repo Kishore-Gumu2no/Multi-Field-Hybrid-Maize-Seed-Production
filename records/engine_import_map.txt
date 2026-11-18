@@ -1,0 +1,38 @@
+Engine membership by importer, resolved with the ast module so that
+`from sim import x as y` is counted. Family A = legacy (core, scheduler,
+strategies, baselines). Family C = corrected Phase 3/U4. dssat and
+weather_real are shared I/O and belong to neither engine.
+
+file                                     family   Family A                           Family C                                                 I/O
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+./_time_solve.py                         A-only   scheduler,strategies                                                                        
+./make_figure_practice.py                A-only   scheduler,strategies                                                                        
+./make_figure_schedule.py                A-only   scheduler,strategies                                                                        
+./make_figures.py                        A-only   core                                                                                        
+./make_figures_real.py                   A-only   core                                                                                        
+./run_baseline.py                        A-only   scheduler,strategies                                                                        
+./run_curves.py                          A-only   scheduler,strategies                                                                        
+./run_experiments.py                     A-only   core,scheduler,strategies                                                                   
+./run_full21.py                          A-only   scheduler,strategies                                                                        
+./run_nomerge.py                         A-only   scheduler,strategies                                                                        
+./run_real_rep.py                        A-only   scheduler,strategies                                                                        
+./validate_cimmyt.py                     A-only   core                                                                                        weather_real
+./records/planner_parity.py              C-only                                      build,capacity,compare,phenology,response                
+./records/solver_scaling.py              C-only                                      build,capacity,optimise,phenology,response               
+./run_iot.py                             C-only                                      pairs,phenology,response,runspec,scoring,sensing,soilthermal weather_real
+./tests/conftest.py                      C-only                                      phenology                                                
+./tests/test_t02_pairs.py                C-only                                      pairs,response                                           
+./tests/test_t03_t06_response.py         C-only                                      response                                                 
+./tests/test_t06_t09_integration.py      C-only                                      build,capacity,optimise,pairs,response,runspec,scoring   
+./tests/test_t07_split.py                C-only                                      pollen,response,scoring                                  
+./tests/test_t08_t11_optimise.py         C-only                                      optimise,scoring                                         
+./tests/test_t12_objective_fixtures.py   C-only                                      build,capacity,optimise,scoring                          
+./tests/test_t13_compare.py              C-only                                      build,capacity,compare,optimise,pollen,response,scoring  
+./tests/test_t14_soilthermal.py          C-only                                      soilthermal                                              
+./tests/test_t15_sensing.py              C-only                                      sensing,soilthermal                                      
+./run_capacity.py                        MIXED    baselines,strategies               capacity                                                 
+./run_real.py                            MIXED    core,scheduler,strategies          phenology                                                weather_real
+./tests/test_t01_tsi.py                  MIXED    core                               pairs,phenology                                          
+./precompute_phenology.py                io-only                                                                                              dssat
+
+counts: {'A-only': 12, 'io-only': 1, 'MIXED': 3, 'C-only': 13}

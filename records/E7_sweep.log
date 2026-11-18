@@ -1,0 +1,52 @@
+PRIMARY
+  primary                            sensor +0.219%  oracle +0.431%  plans changed  7/12
+NULL SCENARIO (sigma = 0: the sensor must show nothing)
+  null_homogeneous                   sensor -0.120%  oracle +0.000%  plans changed  5/12
+  null_sigma0                        sensor -0.120%  oracle +0.000%  plans changed  5/12
+SIGMA SWEEP
+  sigma_0.0                          sensor -0.120%  oracle +0.000%  plans changed  5/12
+  sigma_0.25                         sensor -0.003%  oracle +0.151%  plans changed  5/12
+  sigma_0.5                          sensor +0.130%  oracle +0.269%  plans changed  7/12
+  sigma_0.7                          sensor +0.219%  oracle +0.431%  plans changed  7/12
+  sigma_1.0                          sensor +0.191%  oracle +0.426%  plans changed  7/12
+  sigma_1.5                          sensor +0.650%  oracle +0.711%  plans changed  5/12
+  sigma_2.0                          sensor +1.159%  oracle +1.417%  plans changed  8/12
+  sigma_3.0                          sensor +2.116%  oracle +2.248%  plans changed  9/12
+  sigma_4.0                          sensor +3.318%  oracle +3.435%  plans changed  9/12
+NOISE SWEEP (sigma held at the default)
+  noise_0.0                          sensor +0.431%  oracle +0.431%  plans changed  8/12
+  noise_0.25                         sensor +0.332%  oracle +0.431%  plans changed  7/12
+  noise_0.5                          sensor +0.219%  oracle +0.431%  plans changed  7/12
+  noise_1.0                          sensor +0.051%  oracle +0.431%  plans changed  7/12
+  noise_2.0                          sensor +0.276%  oracle +0.431%  plans changed  4/12
+MISSINGNESS SWEEP
+  missing_0.0                        sensor +0.219%  oracle +0.431%  plans changed  7/12
+  missing_0.25                       sensor +0.229%  oracle +0.431%  plans changed  6/12
+  missing_0.5                        sensor +0.320%  oracle +0.431%  plans changed  7/12
+  missing_0.75                       sensor +0.157%  oracle +0.431%  plans changed  6/12
+  missing_0.9                        sensor +0.017%  oracle +0.431%  plans changed  5/12
+  missing_1.0                        sensor +0.000%  oracle +0.431%  plans changed  0/12
+OBSERVATION LENGTH SWEEP
+  nobs_1                             sensor +0.121%  oracle +0.431%  plans changed  7/12
+  nobs_3                             sensor +0.204%  oracle +0.431%  plans changed  8/12
+  nobs_5                             sensor +0.147%  oracle +0.431%  plans changed  8/12
+  nobs_10                            sensor +0.285%  oracle +0.431%  plans changed  5/12
+  nobs_20                            sensor +0.219%  oracle +0.431%  plans changed  7/12
+  nobs_40                            sensor +0.216%  oracle +0.431%  plans changed  4/12
+HETEROGENEITY SHAPE
+  shape_normal                       sensor +0.219%  oracle +0.431%  plans changed  7/12
+  shape_bimodal                      sensor -0.026%  oracle +0.277%  plans changed  7/12
+  shape_gradient                     sensor +0.009%  oracle +0.152%  plans changed  5/12
+SEED REPLICATES
+  seed_11                            sensor +0.219%  oracle +0.431%  plans changed  7/12
+  seed_12                            sensor -0.124%  oracle +0.221%  plans changed  6/12
+  seed_13                            sensor +0.061%  oracle +0.235%  plans changed  5/12
+  seed_14                            sensor -0.102%  oracle +0.261%  plans changed  7/12
+  seed_15                            sensor -0.075%  oracle +0.224%  plans changed  5/12
+  seed_16                            sensor -0.114%  oracle +0.164%  plans changed  7/12
+  seed_17                            sensor +0.215%  oracle +0.311%  plans changed  8/12
+  seed_18                            sensor +0.018%  oracle +0.183%  plans changed  4/12
+ABLATION: air pathway instead of soil
+  ablation_air_pathway               sensor -0.019%  oracle +0.217%  plans changed  5/12
+
+wrote results/E7_iot_rows.csv (1476 rows), results/E7_iot_summary.csv (41 configs)

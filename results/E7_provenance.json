@@ -1,0 +1,11 @@
+{
+  "git_commit": "b29c61a",
+  "table_sha": "ad69b0ae6b07cfee",
+  "weather": "data/power_ranebennur.csv",
+  "pathway": "soil",
+  "emulator_mean_rmse_days": 2.622086888681962,
+  "emulator_mean_abs_bias_days": 0.14266198282591724,
+  "n_years": 21,
+  "n_sow_days": 61,
+  "simulated_sensing": true
+}
