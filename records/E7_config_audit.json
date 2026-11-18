@@ -1,0 +1,10 @@
+{
+  "rows_total": 149,
+  "distinct_configurations": 123,
+  "redundant_rows": 26,
+  "per_file": {
+    "sweep": 41,
+    "replicate": 75,
+    "operational": 33
+  }
+}

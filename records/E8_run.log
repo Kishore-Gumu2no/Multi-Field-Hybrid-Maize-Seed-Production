@@ -1,0 +1,15 @@
+PRIMARY: sigma = 0.7, four capacity models, constrained vs unconstrained
+  cap_visits_seed11                  visits      sensor  +0.814%  oracle  +2.778%  sown 53/60  [35s]
+  cap_visits_seed12                  visits      sensor  +0.454%  oracle  +2.248%  sown 53/60  [31s]
+  cap_visits_seed13                  visits      sensor  +0.288%  oracle  +2.120%  sown 53/60  [31s]
+  cap_visits_seed14                  visits      sensor  +0.823%  oracle  +2.491%  sown 53/60  [31s]
+  cap_visits_seed15                  visits      sensor  +0.540%  oracle  +2.057%  sown 53/60  [29s]
+  cap_visits_seed16                  visits      sensor  +0.460%  oracle  +1.980%  sown 53/60  [29s]
+  cap_visits_seed17                  visits      sensor  +0.782%  oracle  +2.355%  sown 53/60  [33s]
+  cap_visits_seed18                  visits      sensor  +0.125%  oracle  +2.110%  sown 53/60  [30s]
+  cap_visits_seed19                  visits      sensor  +1.025%  oracle  +2.417%  sown 53/60  [28s]
+  cap_visits_seed20                  visits      sensor  +0.790%  oracle  +2.440%  sown 53/60  [28s]
+  cap_visits_seed21                  visits      sensor  +0.403%  oracle  +1.959%  sown 53/60  [31s]
+  cap_visits_seed22                  visits      sensor  +0.496%  oracle  +2.394%  sown 53/60  [29s]
+  cap_operations_seed11              operations  sensor  -0.383%  oracle  +1.757%  sown 40/60  [161s]
+Terminated
