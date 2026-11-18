@@ -1,0 +1,69 @@
+scenario grid: 18 cells
+  s=1 winter_y1 PL0 k=1.5 ( 19.6s) vsB1=+81.40 vsBest=+34.16
+  s=1 winter_y1 PL0 k=2.0 ( 48.7s) vsB1=+89.01 vsBest=+36.45
+  s=1 winter_y1 PL0 k=2.5 ( 29.2s) vsB1=+78.73 vsBest=+32.98
+  s=1 winter_y1 PL1 k=1.5 ( 20.5s) vsB1=+81.08 vsBest=+34.14
+  s=1 winter_y1 PL1 k=2.0 ( 10.9s) vsB1=+89.34 vsBest=+37.01
+  s=1 winter_y1 PL1 k=2.5 ( 11.2s) vsB1=+76.14 vsBest=+42.99
+  s=1 winter_y1 PL2 k=1.5 ( 10.5s) vsB1=+78.87 vsBest=+33.25
+  s=1 winter_y1 PL2 k=2.0 ( 10.5s) vsB1=+86.45 vsBest=+35.67
+  s=1 winter_y1 PL2 k=2.5 ( 11.9s) vsB1=+94.17 vsBest=+37.92
+  s=1 spring_y2 PL0 k=1.5 ( 11.3s) vsB1=+84.69 vsBest=+34.35
+  s=1 spring_y2 PL0 k=2.0 ( 11.5s) vsB1=+88.32 vsBest=+35.34
+  s=1 spring_y2 PL0 k=2.5 ( 12.3s) vsB1=+90.54 vsBest=+36.10
+  s=1 spring_y2 PL1 k=1.5 ( 11.4s) vsB1=+84.58 vsBest=+34.38
+  s=1 spring_y2 PL1 k=2.0 ( 11.6s) vsB1=+88.62 vsBest=+35.79
+  s=1 spring_y2 PL1 k=2.5 ( 11.3s) vsB1=+91.10 vsBest=+36.87
+  s=1 spring_y2 PL2 k=1.5 ( 12.7s) vsB1=+83.70 vsBest=+34.07
+  s=1 spring_y2 PL2 k=2.0 ( 11.1s) vsB1=+87.43 vsBest=+35.22
+  s=1 spring_y2 PL2 k=2.5 ( 10.8s) vsB1=+89.50 vsBest=+35.86
+  s=2 winter_y1 PL0 k=1.5 ( 10.6s) vsB1=+79.78 vsBest=+38.79
+  s=2 winter_y1 PL0 k=2.0 ( 11.1s) vsB1=+87.21 vsBest=+40.79
+  s=2 winter_y1 PL0 k=2.5 ( 10.8s) vsB1=+79.17 vsBest=+28.59
+  s=2 winter_y1 PL1 k=1.5 ( 11.1s) vsB1=+79.42 vsBest=+38.73
+  s=2 winter_y1 PL1 k=2.0 ( 10.6s) vsB1=+87.82 vsBest=+44.03
+  s=2 winter_y1 PL1 k=2.5 ( 11.1s) vsB1=+77.13 vsBest=+43.97
+  s=2 winter_y1 PL2 k=1.5 ( 11.0s) vsB1=+77.20 vsBest=+37.85
+  s=2 winter_y1 PL2 k=2.0 ( 10.4s) vsB1=+84.91 vsBest=+40.17
+  s=2 winter_y1 PL2 k=2.5 ( 10.3s) vsB1=+92.61 vsBest=+44.94
+  s=2 spring_y2 PL0 k=1.5 ( 10.8s) vsB1=+83.44 vsBest=+40.87
+  s=2 spring_y2 PL0 k=2.0 ( 11.1s) vsB1=+86.83 vsBest=+41.43
+  s=2 spring_y2 PL0 k=2.5 ( 10.9s) vsB1=+88.91 vsBest=+41.80
+  s=2 spring_y2 PL1 k=1.5 ( 10.1s) vsB1=+83.78 vsBest=+41.60
+  s=2 spring_y2 PL1 k=2.0 ( 10.0s) vsB1=+87.75 vsBest=+42.93
+  s=2 spring_y2 PL1 k=2.5 (  9.8s) vsB1=+90.18 vsBest=+43.88
+  s=2 spring_y2 PL2 k=1.5 (  9.8s) vsB1=+82.74 vsBest=+40.76
+  s=2 spring_y2 PL2 k=2.0 (  9.9s) vsB1=+86.54 vsBest=+41.90
+  s=2 spring_y2 PL2 k=2.5 ( 10.4s) vsB1=+88.46 vsBest=+42.12
+  s=3 winter_y1 PL0 k=1.5 ( 11.6s) vsB1=+73.74 vsBest=+42.27
+  s=3 winter_y1 PL0 k=2.0 ( 11.7s) vsB1=+80.81 vsBest=+44.57
+  s=3 winter_y1 PL0 k=2.5 ( 10.7s) vsB1=+69.88 vsBest=+34.55
+  s=3 winter_y1 PL1 k=1.5 ( 10.1s) vsB1=+73.48 vsBest=+42.26
+  s=3 winter_y1 PL1 k=2.0 ( 10.7s) vsB1=+81.35 vsBest=+40.92
+  s=3 winter_y1 PL1 k=2.5 ( 10.2s) vsB1=+67.76 vsBest=+40.94
+  s=3 winter_y1 PL2 k=1.5 ( 10.2s) vsB1=+71.01 vsBest=+41.22
+  s=3 winter_y1 PL2 k=2.0 ( 10.1s) vsB1=+78.05 vsBest=+43.61
+  s=3 winter_y1 PL2 k=2.5 (  9.7s) vsB1=+84.94 vsBest=+41.95
+  s=3 spring_y2 PL0 k=1.5 ( 10.2s) vsB1=+76.30 vsBest=+36.55
+  s=3 spring_y2 PL0 k=2.0 ( 10.1s) vsB1=+79.47 vsBest=+37.37
+  s=3 spring_y2 PL0 k=2.5 ( 10.5s) vsB1=+81.36 vsBest=+37.77
+  s=3 spring_y2 PL1 k=1.5 ( 10.5s) vsB1=+76.36 vsBest=+37.15
+  s=3 spring_y2 PL1 k=2.0 ( 10.8s) vsB1=+80.02 vsBest=+38.63
+  s=3 spring_y2 PL1 k=2.5 ( 10.8s) vsB1=+82.25 vsBest=+39.55
+  s=3 spring_y2 PL2 k=1.5 (  9.9s) vsB1=+75.24 vsBest=+36.34
+  s=3 spring_y2 PL2 k=2.0 ( 10.0s) vsB1=+78.70 vsBest=+37.62
+  s=3 spring_y2 PL2 k=2.5 (  9.9s) vsB1=+80.40 vsBest=+37.86
+  N=40 s=1 merge_allowed     vsB1=+47.47 vsBest=+26.76 merged=0.58
+  N=40 s=1 merge_disallowed  vsB1=+48.02 vsBest=+20.48 merged=0.00
+  N=40 s=2 merge_allowed     vsB1=+44.82 vsBest=+28.91 merged=0.65
+  N=40 s=2 merge_disallowed  vsB1=+40.88 vsBest=+20.44 merged=0.00
+  N=40 s=3 merge_allowed     vsB1=+44.38 vsBest=+25.07 merged=0.51
+  N=40 s=3 merge_disallowed  vsB1=+43.16 vsBest=+20.12 merged=0.00
+  N=70 s=1 merge_allowed     vsB1=+78.87 vsBest=+33.25 merged=0.88
+  N=70 s=1 merge_disallowed  vsB1=+83.70 vsBest=+24.92 merged=0.00
+  N=70 s=2 merge_allowed     vsB1=+77.20 vsBest=+37.85 merged=0.88
+  N=70 s=2 merge_disallowed  vsB1=+80.11 vsBest=+19.09 merged=0.00
+  N=70 s=3 merge_allowed     vsB1=+71.01 vsBest=+41.22 merged=0.88
+  N=70 s=3 merge_disallowed  vsB1=+77.22 vsBest=+25.91 merged=0.00
+
+wrote results_fc_main/FC_robust_raw.csv (66 rows)
