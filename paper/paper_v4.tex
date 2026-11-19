@@ -70,24 +70,18 @@ Optimised Sowing Scheduling for Multi-Field\\
 Hybrid Maize Seed Production under\\
 Anthesis-Synchrony Constraints}
 
-% Four authors, set as a 2x2 grid. The department name is long, so a single
-% row of four would crush each column; the grid keeps the lines unbroken.
-\newcommand{\authblock}[2]{%
-  \begin{minipage}[t]{0.43\textwidth}\centering
-  \normalsize #1\\[2pt]
-  \small Dept. of CSE in IoT, Cybersecurity including Blockchain\\
-  \small Dayananda Sagar Academy of Technology and Management\\
-  \small Bengaluru, India\\
-  \small #2
-  \end{minipage}}
-
+% Four authors sharing one affiliation: the names are set on one row and the
+% department is given once beneath them, which is compact and is how IEEE
+% sets a single-affiliation author list.
 \author{%
-  \begin{tabular}{@{}c@{\hspace{3em}}c@{}}
-  \authblock{C. Tejas}{tejasshekar29@outlook.com} &
-  \authblock{Mayur Adiga}{adigamayur@gmail.com} \\[14pt]
-  \authblock{Pavan Kumar Nayak}{nayakpavan0099@gmail.com} &
-  \authblock{Kishore Kumar N.~H.}{kishorekumarrnh05@gmail.com}
-  \end{tabular}}
+  \begin{minipage}{\textwidth}\centering
+  \normalsize
+  C. Tejas \quad Mayur Adiga \quad Pavan Kumar Nayak \quad Kishore Kumar N.~H.\\[3pt]
+  \small Dept.\ of CSE in IoT, Cybersecurity including Blockchain\\
+  \small Dayananda Sagar Academy of Technology and Management, Bengaluru, India\\
+  \small \{tejasshekar29@outlook.com, adigamayur@gmail.com,
+  nayakpavan0099@gmail.com, kishorekumarrnh05@gmail.com\}
+  \end{minipage}}
 
 \date{}
 
@@ -137,67 +131,47 @@ support, stochastic programming, mixed-integer optimisation.}}
 \section{Introduction}
 % =========================================================================
 
-\subsection{The operation}
+\subsection{The operation, and what the supervisor decides}
 
 Hybrid maize seed is produced by sowing two inbred parent lines --- a male
-and a female --- in alternating rows on the same field, so that the female
-is pollinated only by the male. The seed company contracts the fields to
-growers, but the sowing itself is done by the company's own supervised crew,
-because the row pattern and the timing of the two parents are what make the
-product and are not left to the grower~\cite{chassaigne2021,chassaigne2020}.
-A producer in a seed-growing belt therefore runs many isolated fields with
-very few sowing units, each of which can start only a few fields in a day.
+and a female --- in alternating rows on the same field, so the female is
+pollinated only by the male. The seed company contracts the fields to
+growers but sows them with its own supervised crew, because the row pattern
+and the timing of the two parents are what make the
+product~\cite{chassaigne2021,chassaigne2020}. A producer therefore runs many
+isolated fields with very few sowing units, each able to start only a few
+fields a day.
 
-The two parents rarely flower at the same time if sown together, so the
-agronomic literature supplies, for each parent pair, a recommended
-\emph{sowing offset}: the number of days the male should be sown before or
-after the female so that pollen shed coincides with silk
-receptivity~\cite{marahatta2025,chassaigne2021,asefa2024}. Practitioners call
-this \emph{nicking}. Maize pollen stays viable for 18--24 hours and the stigma
-is receptive for two to three days~\cite{marahatta2025}. If the windows miss,
-no seed forms: field experiments report seed yield falling 29--57\% as the
-tasseling--silking interval (TSI) widens~\cite{marahatta2025}.
+The parents rarely flower together if sown together, so the agronomic
+literature supplies, per parent pair, a recommended \emph{sowing offset}:
+how many days the male should be sown before or after the female so pollen
+shed meets silk receptivity~\cite{marahatta2025,chassaigne2021,asefa2024}.
+Pollen stays viable 18--24 hours and the stigma is receptive two to three
+days~\cite{marahatta2025}; if the windows miss, no seed forms, and field
+experiments report yield falling 29--57\% as the tasseling--silking interval
+(TSI) widens~\cite{marahatta2025}.
 
-\subsection{What the supervisor decides, and why it is hard}
+With the offsets in hand someone must still decide \emph{which field the
+crew starts on which day}. Today a supervisor decides by hand, with a
+degree-day table and a calendar: fields in the order they come, each started
+on the first free day, recommended offset applied. The recommendations are
+derived per field and then assumed deliverable; the one study stating the
+assumption notes that ``it is assumed that machinery is available to do the
+sowing''~\cite{chassaigne2021}. We have not surveyed producers and describe
+practice as the literature and that assumption describe it
+(Section~\ref{sec:limits}).
 
-With the offsets in hand, someone still has to decide \emph{which field the
-crew starts on which day}. Today that decision is made by the field
-supervisor, by hand, with a degree-day table and a calendar: fields are
-taken in the order they come, each started on the first day the crew is
-free, with its recommended offset applied. The agronomic recommendations
-are derived for a single field and then assumed to be deliverable; the one
-study that states the assumption explicitly notes that ``it is assumed that
-machinery is available to do the sowing, or, in the case of rains after the
-first sowing, staff are available''~\cite{chassaigne2021}. We have not
-surveyed producers, and we describe current practice as the literature and
-its stated operational assumption describe it; Section~\ref{sec:limits}
-records this.
-
-Three things make the hand decision harder than it looks.
-\emph{First, the fields compete.} A crew that can start $K$ fields a day,
-with $N$ fields needing three visits each inside a sowing window of $T$
-days, is saturated once $3N \ge TK$; past that point every field placed
-early is another field placed late or not at all.
-\emph{Second, the day a field is started sets its biology.} Flowering is
-driven by accumulated thermal time, so a field started a week later flowers
-in different weather, and the offset that synchronised its parents at the
-planned date may not synchronise them at the actual one.
-\emph{Third, rain closes fields.} A wet day makes a field untrafficable for
-one to three days depending on its drainage, pushing its visit --- and every
-visit queued behind it --- later. The supervisor is therefore juggling
-$N$ fields, $T$ days, around fifteen candidate offsets per field, a crew
-limit that couples every choice to every other, and weather that will not
-be known until after the choices are made.
-
-No existing tool addresses this decision (Section~\ref{sec:related}). The
-synchrony literature gives offsets per field; the field-operations
-scheduling literature prices lateness against a fixed ideal date, whereas
-the cost here is the \emph{mismatch between two flowering dates that the
-schedule itself induces}. A sensor reading or a rule of thumb does not
-resolve it either, because the quantity that matters --- the overlap of two
-future flowering windows under weather not yet realised --- is not
-observable at decision time. We also test, and report, whether a sensible
-dispatch rule written in a few lines of code is enough. It is not: given the same information, a hardest-field-first greedy matches the exact solver while the crew has slack and falls below current practice once it does not (Section~\ref{sec:results}).
+Three things make that decision hard. \emph{The fields compete}: a crew
+starting $K$ fields a day, with $N$ fields needing three visits each inside
+a window of $T$ days, saturates once $3N \ge TK$, past which every field
+placed early is another placed late or not at all. \emph{The start day sets
+the biology}: flowering follows accumulated thermal time, so a field started
+a week later flowers in different weather and its offset may no longer
+synchronise. \emph{Rain closes fields} for one to three days, pushing every
+visit queued behind. No existing tool addresses this
+(Section~\ref{sec:related}), and the quantity that matters --- the mismatch
+between two flowering dates the schedule itself induces --- is not
+observable at decision time, because it depends on weather not yet realised.
 
 \subsection{Problem statement}
 
@@ -206,231 +180,136 @@ drainage class; a sowing window of $T$ days; a crew that can make $K$
 field-visits per day; a thermal-time model of flowering for each parent; a
 measured yield response to parental asynchrony; and a distribution of
 possible seasons --- assign to each field a female sowing day and a male
-offset, and revise the assignment as the season unfolds, so as to maximise
-expected seed yield across the farm.}
+offset so as to maximise expected seed yield across the farm.}
 
-The statement passes the FINER test~\cite{hulley2013} that a research
-question should be feasible, interesting, novel, ethical and relevant.
-\emph{Feasible:} every input is either public (weather, crop model,
-published yield response) or routinely held by a producer (fields, parents,
-crew), and the problem is small enough to solve exactly in seconds.
-\emph{Interesting:} the decision couples logistics to biology, and the
-answer --- whether optimising the assignment matters, and whether revising
-it in-season matters --- is not obvious in advance. \emph{Novel:} no
-published formulation couples a shared sowing resource to parent-specific
-flowering synchrony (Table~\ref{tab:gap}). \emph{Ethical:} the study is a
-simulation on public data; no field trial or personal data is involved.
-\emph{Relevant:} hybrid maize seed is produced on contract in exactly this
-configuration across India, Mexico, Nepal and Ethiopia by the sources we
-cite, and the gain we measure requires no change to inputs, genetics or
-acreage.
+Every input is public or routinely held by a producer, and the problem
+solves exactly in seconds. No published formulation couples a shared sowing
+resource to parent-specific flowering synchrony, and the gain we measure
+requires no change to inputs, genetics or acreage.
 
-\subsection{A secondary question: should the tool replan?}
-
-A decision-support tool for this problem could stop at a plan made before
-the season, or it could revise the plan as weather arrives. The evidence on
-whether in-season revision is worth building is, for agriculture, mostly
-negative: Kelly \textit{et al.}~\cite{kelly2023} found that fixed irrigation
-heuristics captured more than 90\% of the value available under perfect
-foresight and that adaptation added less than five percent, and Becker
-\textit{et al.}~\cite{becker2026} found fixed strategies beating model
-predictive control in all 21 weather scenarios they tested. Both studies
-concern irrigation, where a plant watered two days late is stressed, not
-lost. Whether their conclusion transfers to an operation where timing error costs
-the whole crop is an open question, and one a producer deciding what to
-build needs answered. We do not answer it. Our corrected pipeline can price
-only revision that uses no new information, which is worth nothing by
-construction, and we report that result and the reason for it in
-Section~\ref{sec:replan} rather than a figure we cannot stand behind.
+A tool for this could stop at a plan made before the season or revise it as
+weather arrives. The agricultural evidence on revision is mostly negative:
+Kelly \textit{et al.}~\cite{kelly2023} found fixed irrigation heuristics
+captured over 90\% of the value available under perfect foresight, and
+Becker \textit{et al.}~\cite{becker2026} found fixed strategies beating
+model predictive control in all 21 scenarios tested. Both concern
+irrigation, where a plant watered late is stressed, not lost. We do not
+settle whether that transfers: our corrected pipeline can price only
+revision using no new information, which is worth nothing by construction
+(Section~\ref{sec:replan}).
 
 \subsection{Contributions}
 
 \begin{enumerate}
-\itemsep1pt
+\itemsep0pt
 \item \emph{A solution to the sowing-assignment problem, and the condition
 under which it is worth anything.} We formulate multi-field hybrid maize
-seed sowing as a stochastic assignment problem coupling a shared sowing crew
-to the flowering synchrony of each field's parents, solve it exactly, score
-it with a published measured yield response, take flowering dates from
-CERES-Maize, and evaluate on twenty-one observed seasons at an Indian
-seed-production site. Where the crew has slack, exact optimisation is worth
-nothing over the best of five hand rules. Once the crew is over-subscribed
-it is worth $+20.8$\% against that best rule and $+42.5$\% against current
-practice as described, rising to $+35.2$\% and $+73.3$\% at the largest farm
-tested. A hardest-field-first greedy dispatcher given the same information
-is worse than a good ordering rule, by $9.6$\%.
+sowing as a stochastic assignment problem coupling a shared crew to
+parent-specific flowering synchrony, solve it exactly, score it with a
+published measured yield response, take flowering dates from CERES-Maize and
+evaluate on twenty-one observed seasons. Where the crew has slack, exact
+optimisation is worth nothing over the best of five hand rules; once it is
+over-subscribed it is worth $+20.8$\% against that rule and $+42.5$\%
+against current practice as described, rising to $+35.2$\% and $+73.3$\% at
+the largest farm tested. A greedy dispatcher given the same information is
+$9.6$\% worse than a good ordering rule.
 \item \emph{An identified mechanism, tested rather than asserted.} The gain
-comes from relaxing the recommended offset so that fields arriving late in
-the queue can still be placed, with merging two parent sowings into one
-crew visit a second and smaller source --- forbidding it cuts the gain by
-about a third without removing it. The result is positive in all 54 cells of
-an eighteen-cell grid over the contested parts of the yield response.
+comes from relaxing the recommended offset so late-queued fields can still
+be placed, with visit merging a second and smaller source. The result is
+positive in all 54 cells of a grid over the contested parts of the yield
+response.
 \item \emph{An integrated simulated-sensing study, and two negative
 results.} We integrate per-field soil-temperature sensing as a simulation
---- no sensor was deployed, no seed was weighed --- and report what it is
-and is not worth. We also report that in-season replanning over the same
-information is worth nothing, and that our external validation is a
-consistency check on degree-day arithmetic rather than independent
-confirmation. The simulator, weather, crop-model table, scripts, results and
-a full audit of every number against its source are released.
+--- no sensor deployed, no seed weighed --- and report what it is and is not
+worth. We also report that in-season replanning over the same information is
+worth nothing, and that our external validation is a consistency check on
+degree-day arithmetic rather than independent confirmation. Simulator,
+weather, crop-model table, results and a full audit of every number against
+its source are released.
 \end{enumerate}
 
-% =========================================================================
 \section{Related Work}
 \label{sec:related}
 % =========================================================================
 
-\subsection{Flowering synchrony and how practitioners manage it}
+\emph{Flowering synchrony.} The agronomic literature is mature, practical
+and almost entirely single-field. Marahatta \textit{et
+al.}~\cite{marahatta2025} staggered male sowing across two seasons and two
+hybrids and fitted seed yield against TSI; their regressions are the
+empirical foundation of our objective. Chassaigne-Ricciulli \textit{et al.}
+quantified effective seed yield against parental synchrony for CIMMYT
+three-way crosses~\cite{chassaigne2021} and developed single-cross
+recommendations~\cite{chassaigne2020}; others modelled kernel set from
+pollen--silk overlap~\cite{fonseca2004} or combined a crop
+model with genomic prediction~\cite{laurent2025}. Two features bear on our
+formulation: practitioners manage nicking with \emph{two} levers, staggered
+sowing and nitrogen to whichever parent is
+late~\cite{priyanka2017,patil2026}, of which we model only the first; and
+thermal-time rules are argued to replace calendar ones, which do not
+transfer between locations~\cite{asefa2024,varma2018}. None of it asks what
+happens when one sowing resource must serve many fields, so that starting
+one delays another and shifts its flowering date.
 
-The agronomic literature on anthesis synchrony is mature, practical, and
-almost entirely single-field. Marahatta \textit{et al.}~\cite{marahatta2025}
-staggered male inbred sowing across two seasons and two hybrids and fitted
-seed yield against TSI directly; their regressions are the empirical
-foundation of our objective. Chassaigne-Ricciulli \textit{et al.} quantified
-effective seed yield against parental synchrony for CIMMYT three-way-cross
-hybrids~\cite{chassaigne2021} and developed sowing recommendations for
-single-cross hybrids~\cite{chassaigne2020}. Fonseca \textit{et
-al.}~\cite{fonseca2004} and Schneider~\cite{schneider2005} modelled kernel
-set from pollen--silk overlap, and Laurent \textit{et al.}~\cite{laurent2025}
-integrate a crop growth model with whole-genome prediction to forecast
-synchrony and recommend a differential planting interval.
+\emph{Scheduling field operations.} The operations literature prices
+\emph{timeliness loss} --- yield forgone when an operation drifts from its
+agronomic optimum --- and embeds it in machinery selection and
+scheduling~\cite{sun2023}; tillage has been scheduled as a Markov decision
+process over stochastic workability~\cite{bagheri2025}, rolling-horizon
+rescheduling applied to harvest under
+disruption~\cite{rollinghorizon2023}.
+There the penalty is a function of \emph{one} date departing from a fixed
+ideal; in ours it is a function of the \emph{difference between two
+flowering dates the schedule itself induces}, both depending on weather
+realised after the decision. Closest in structure is Khalilzadeh and
+Wang~\cite{khalilzadeh2022}, scheduling corn planting and harvest under
+degree-unit uncertainty and a capacity constraint --- but their binding
+resource is storage, their objective smoothing harvest volume, and parent
+lines and synchrony appear nowhere. Comparing a protected baseline against
+one revised during execution is a question the project-scheduling community
+has studied for two
+decades~\cite{lambrechts2007}; the two
+agricultural studies that measured it did so for
+irrigation~\cite{kelly2023,becker2026} and both found it small. This work
+occupies the intersection: the synchrony literature derives the offset each
+hybrid needs and assumes it deliverable, the scheduling literature delivers
+on time but against a fixed ideal date.
 
-Two features of this literature bear on our formulation. First,
-practitioners manage nicking with \emph{two} levers: staggered sowing, and
-supplementary nitrogen to whichever parent is late. In pearl millet, sowing
-the male nine days early closed an eleven-day gap and nitrogen to the late
-parent closed the remainder~\cite{priyanka2017}; the same pairing is reported
-for sunflower~\cite{patil2026}. We model only the first lever
-(Section~\ref{sec:limits}). Second, several authors argue that thermal-time
-rules should replace calendar-day ones because calendar rules do not
-transfer between locations: Asefa \textit{et al.}~\cite{asefa2024} recommend
-degree-day based staggering across agro-ecologies, and Marahatta \textit{et
-al.}~\cite{marahatta2025} caution against extrapolating their calendar-day
-recommendations without local validation. In hybrid rice, Varma \textit{et
-al.}~\cite{varma2018} found a leaf-number criterion the most consistent
-across planting dates --- relevant to what a scheduler can observe.
-
-What none of this work asks is what happens when one sowing resource must
-serve many fields, so that starting one field delays another and shifts its
-flowering date.
-
-\subsection{Scheduling field operations under uncertainty}
-
-The operations literature approaches from the other side. A substantial
-body of work prices \emph{timeliness loss}, the yield forgone when an
-operation drifts from its agronomic optimum, and embeds it in machinery
-selection and scheduling models~\cite{sun2023}. Bagheri Tookanlou
-\textit{et al.}~\cite{bagheri2025} schedule tillage as a finite-horizon
-Markov decision process over stochastic soil workability. Rolling-horizon
-rescheduling has been applied to agricultural harvest under
-disruption~\cite{rollinghorizon2023}, and shared machinery dispatching has
-been studied with time windows~\cite{shared2022}.
-
-In timeliness-loss models the penalty is a function of \emph{one} date
-departing from a fixed ideal. In ours it is a function of the
-\emph{difference between two flowering dates that the schedule itself
-induces}, both depending on weather realised after the decision. The
-closest formulation in structure is Khalilzadeh and
-Wang~\cite{khalilzadeh2022}, who schedule corn planting and harvest under
-growing-degree-unit uncertainty and a capacity constraint; their binding
-resource is storage, their objective is smoothing weekly harvest volume, and
-parent lines and flowering synchrony appear nowhere in the model.
-
-\subsection{Proactive and reactive scheduling}
-
-Our comparison between a protected baseline plan and one revised during
-execution is an instance of a question the project-scheduling community has
-studied for two decades~\cite{lambrechts2007,vandevonder2007,%
-demeulemeester2009}. We adopt its vocabulary: $S_3$ below is a proactive
-baseline and $S_4$ a proactive--reactive policy. Two agricultural studies
-have measured the value of in-season adaptation against a good fixed plan,
-both for irrigation~\cite{kelly2023,becker2026}, and both found it small.
-
-\subsection{The gap}
-
-The synchrony literature derives the offset each hybrid needs and assumes it
-can be delivered. The scheduling literature delivers operations on time but
-prices lateness against a fixed ideal date rather than against a
-weather-dependent coincidence of two events. Table~\ref{tab:gap} summarises
-the position; the present work occupies the intersection.
-
-\begin{table}[t]
-\caption{Position of this work relative to the closest literature}
-\label{tab:gap}
-\centering
-\footnotesize
-\setlength{\tabcolsep}{2.4pt}\scriptsize
-\begin{tabular}{lccccc}
-\toprule
- & Synchrony & Multi- & Shared & In-season & Weather \\
- & drives yield & field & resource & replan & uncertainty \\
-\midrule
-Laurent 2025~\cite{laurent2025}        & \checkmark & -- & -- & -- & \checkmark \\
-Marahatta 2025~\cite{marahatta2025}    & \checkmark & -- & -- & -- & -- \\
-Chassaigne 2021~\cite{chassaigne2021}  & \checkmark & -- & -- & -- & -- \\
-Priyanka 2017~\cite{priyanka2017}      & \checkmark & -- & -- & -- & -- \\
-Khalilzadeh 2022~\cite{khalilzadeh2022}& --         & \checkmark & \checkmark & -- & \checkmark \\
-Sun 2023~\cite{sun2023}                & --         & \checkmark & \checkmark & -- & -- \\
-Bagheri 2025~\cite{bagheri2025}        & --         & -- & -- & \checkmark & \checkmark \\
-Lambrechts 2008~\cite{lambrechts2007}  & --         & -- & \checkmark & \checkmark & \checkmark \\
-Kelly 2023~\cite{kelly2023}            & --         & -- & -- & \checkmark & \checkmark \\
-Becker 2026~\cite{becker2026}          & --         & -- & -- & \checkmark & \checkmark \\
-\textbf{This work}                     & \checkmark & \checkmark & \checkmark & $\dagger$ & \checkmark \\
-\bottomrule
-\end{tabular}
-\\[2pt]
-\footnotesize\raggedright $\dagger$ implemented and tested, and found to add
-nothing over a static plan given the same information
-(Section~\ref{sec:replan}). The column marks what each work addresses, not
-what it establishes.
-\end{table}
-
-% =========================================================================
 \section{Problem Formulation}
 \label{sec:formulation}
-% =========================================================================
 
 \subsection{Setting}
 
-A seed producer operates fields $i \in \mathcal{F} = \{1,\dots,N\}$ over a
-sowing window of days $t \in \mathcal{T} = \{1,\dots,T\}$, fixed by contract
-and isolation requirements. Field $i$ has area $a_i$ hectares and a drainage
-class $\rho_i$.
-
-Each field requires three crew visits. Writing $d^F_i$ for the female
-sowing day and $o_i \in \mathcal{O}$ for the male offset, the male is sown on
-$d^M_i = d^F_i + o_i$ and again on $d^M_i + \delta$: sowing the male on two
-dates $\delta = 2$ days apart is standard practice, so that pollen is
-available across the whole female receptive window rather than only at its
-start~\cite{chassaigne2021}. The set of days on which the crew must attend
-field $i$ is therefore
+A producer operates fields $i \in \mathcal{F} = \{1,\dots,N\}$ over a sowing
+window $t \in \mathcal{T} = \{1,\dots,T\}$ fixed by contract and isolation
+requirements. Field $i$ has area $a_i$, drainage class $\rho_i$, and
+requires three crew visits: with $d^F_i$ the female sowing day and
+$o_i \in \mathcal{O}$ the male offset, the male is sown on
+$d^M_i = d^F_i + o_i$ and again $\delta = 2$ days later, standard practice
+so pollen spans the whole female receptive window~\cite{chassaigne2021}. The
+days the crew must attend field $i$ are
 \begin{equation}
 V(d,o) = \{\, d,\; d+o,\; d+o+\delta \,\},
 \label{eq:visits}
 \end{equation}
-with coincident days counted once: at $o = 0$ or $o = -\delta$ one of the
-male sowings falls on the female's day and the field needs two visits
-rather than three. Capacity is counted in \emph{field-visits} --- the
-supervised unit travelling to and setting up at an isolated field --- not
-in sowing operations; Section~\ref{sec:results} reports what happens when
-this merging is disallowed. A single supervised sowing unit can make at
-most $K$ field-visits per day.
+coincident days counted once: at $o = 0$ or $o = -\delta$ a male sowing
+falls on the female's day and the field needs two visits. Capacity is
+counted in \emph{field-visits} --- the supervised unit travelling to an
+isolated field --- not sowing operations; Section~\ref{sec:results} reports
+what happens when this merging is disallowed. One unit makes at most $K$
+field-visits per day.
 
 \subsection{Phenology}
 
 The scheduler needs only a map $\phi$ from a sowing day and a season to a
-flowering day. Every number reported in this paper takes $\phi$ from
-\emph{CERES-Maize as distributed in DSSAT}, enumerated once over
-(cultivar, sowing day, weather year) into a lookup table, because anthesis
-depends on none of them on the schedule. Thermal time inside CERES is not
-a single air-temperature sum: while fewer than ten leaves have appeared it
-is driven by an estimated soil temperature, and the base and optimum
-temperatures are those of the ecotype file ($T_b = 8^\circ$C,
-$T_{\mathrm{opt}} = 34^\circ$C), not the $10/30^\circ$C pair used in the
-agronomic literature. Section~\ref{sec:iot} sets out the soil pathway in
-full, because it is what the sensing study acts on.
-
-A simple degree-day form,
+flowering day. Every number reported here takes $\phi$ from
+\emph{CERES-Maize as distributed in DSSAT}, enumerated once over (cultivar,
+sowing day, weather year) into a lookup table, because anthesis does not
+depend on the schedule. Thermal time inside CERES is not a single
+air-temperature sum: while fewer than ten leaves have appeared it is driven
+by an \emph{estimated soil} temperature, with the ecotype file's
+$T_b = 8^\circ$C and $T_{\mathrm{opt}} = 34^\circ$C rather than the
+$10/30^\circ$C pair of the agronomic literature
+(Section~\ref{sec:iot}). The simple degree-day form
 \begin{equation}
 \begin{aligned}
 g(t) &= \max\!\Big(0, \tfrac{1}{2}\big[\min(T^{\max}_t, T_u)
@@ -439,82 +318,66 @@ g(t) &= \max\!\Big(0, \tfrac{1}{2}\big[\min(T^{\max}_t, T_u)
 \end{aligned}
 \label{eq:gdd}
 \end{equation}
-with $T_b = 10^\circ$C and $T_u = 30^\circ$C, is how the agronomic
-literature reports parent requirements~\cite{marahatta2025,chassaigne2021}
-and is the form used in the external validation of
-Section~\ref{sec:validation}, where the comparison source uses exactly this
-arithmetic. It is \emph{not} the model behind the scheduling results.
-Write $\Theta^M_i$ for thermal time to 75\% tasseling of the male line and
-$\Theta^F_i$ for 75\% silking of the female line. The realised
-tasseling--silking interval is
+with $T_b = 10^\circ$C, $T_u = 30^\circ$C, is how the agronomic literature
+reports parent requirements~\cite{marahatta2025,chassaigne2021} and is the
+form used in Section~\ref{sec:validation}, where the comparison source uses
+exactly this arithmetic. It is \emph{not} the model behind the scheduling
+results.
+
+Writing $\Theta^M_i$ for thermal time to 75\% tasseling of the male and
+$\Theta^F_i$ for 75\% silking of the female, the realised interval is
 \begin{equation}
-\TSI_i = \phi(d^M_i, \Theta^M_i) - \phi(d^F_i, \Theta^F_i).
+\TSI_i = \phi(d^M_i, \Theta^M_i) - \phi(d^F_i, \Theta^F_i),
 \label{eq:tsi}
 \end{equation}
-
-Equation~\eqref{eq:tsi} is the crux. Because $\Theta^M_i \ne \Theta^F_i$, a
-calendar offset is required to bring the two into coincidence --- but the
-offset that achieves it depends on the temperature actually experienced after
-sowing, which is unknown when the decision is made. In a warm spell the
-thermal gap closes in fewer days than in a cold one. This, not rainfall
-alone, is the irreducible uncertainty in the problem.
-
-The scheduler requires only that flowering be \emph{some} map $\phi$ from a
-sowing day and a season to a flowering day. We state the degree-day form
-because it makes the mechanism legible and is how the agronomic literature
-reports parent requirements~\cite{marahatta2025,chassaigne2021}; in the
-experiments $\phi$ is CERES-Maize (Section~\ref{sec:design}).
+positive when the male tassels after the female silks. This is the crux:
+because $\Theta^M_i \ne \Theta^F_i$ a calendar offset is needed to bring the
+two into coincidence, but the offset that achieves it depends on temperature
+experienced after sowing, unknown when the decision is made. This, not
+rainfall, is the irreducible uncertainty.
 
 \subsection{Yield}
 
-We score synchrony with the published quadratic of Marahatta
-\textit{et al.}~\cite{marahatta2025}, Fig.~4, winter year one
-($R^2 = 0.58$, $p < 0.001$):
+We score synchrony with the published quadratic of Marahatta \textit{et
+al.}~\cite{marahatta2025}, Fig.~4, winter year one ($R^2 = 0.58$,
+$p < 0.001$):
 \begin{equation}
 Y_1(x) = 3.5918 - 0.3379\,x + 0.012\,x^2 \quad [\mathrm{t\,ha^{-1}}],
 \label{eq:yield}
 \end{equation}
-with $x = \TSI$. Three things are required before \eqref{eq:yield} can be
-used as an objective, and each is a declared choice rather than a fitted one.
+with $x = \TSI$. Three further choices are needed to use it as an objective,
+and each is declared rather than fitted.
 
-\emph{The observed domain is a hard boundary.} The two trials between them
-cover $x \in [-3.75, 13.75]$ days. Outside it the response is undefined, so
-a field-year that lands outside is \emph{excluded from the mean and
-counted}, never clipped to the edge. Clipping would score a schedule in a
-region no experiment has visited and would do so silently. Across the
-89{,}418 field-years evaluated in Section~\ref{sec:results}, none fell
-outside.
+\emph{The observed domain is a hard boundary.} The two trials cover
+$x \in [-3.75, 13.75]$ days; outside it the response is undefined, so a
+field-year landing outside is \emph{excluded from the mean and counted},
+never clipped. Clipping would silently score a schedule in a region no
+experiment has visited. Of the 89{,}418 field-years evaluated below, none
+fell outside.
 
-\emph{A plateau around the optimum.} Perfect coincidence is not required for
-full seed set. We take the optimum to extend $p_+ = 2$ days on the late side,
-from Marahatta \textit{et al.}'s same-day treatments, and $p_- = 0$ on the
-early side, and normalise on the plateau edge:
-\begin{equation}
-r_+(u) = \begin{cases} 1, & u \le p_+,\\[2pt]
-Y_1(u)/Y_1(p_+), & u > p_+. \end{cases}
-\end{equation}
+\emph{A plateau around the optimum}, since perfect coincidence is not
+required for full seed set: $p_+ = 2$ days late from the same-day
+treatments, $p_- = 0$ early, with $r_+(u) = 1$ for $u \le p_+$ and
+$Y_1(u)/Y_1(p_+)$ beyond.
 
 \emph{A penalty on the early side.} The regression was fitted almost
 entirely on $x \ge 0$ and carries no left-hand term, so taken literally it
-rewards sowing the male arbitrarily early at no cost. The pollen is in fact
+rewards sowing the male arbitrarily early at no cost; the pollen is in fact
 spent before the silks emerge. We reflect the fitted branch about the
 optimum and steepen it by $\kappa$:
 \begin{equation}
 r(x) = \begin{cases} r_+(x), & x \ge -p_-,\\[2pt]
 r_+(\kappa\,|x|), & x < -p_-, \end{cases}
-\qquad \kappa \ge \kappa_{\min},
 \label{eq:Y}
 \end{equation}
 with $\kappa_{\min} = 2.50/1.75 = 1.43$ forced by the \emph{ordering} of the
-two observed negative-TSI points, and $\kappa = 1.5$ as the primary value.
+two observed negative-TSI points, and $\kappa = 1.5$ primary.
 
-An earlier formulation attenuated the optimum instead by a rectangular
-overlap of pollen shed and silk receptivity. We record that it is
-\textbf{falsified} by the data it was meant to respect: its errors at the two
-observed negative-TSI points have opposite signs ($-0.159$ at $-3.75$ d,
-$+0.093$ at $-1.75$ d), and it predicts an asymmetry gap of $0.279$ against
-an observed $0.036$. It is retained in the code only so that the
-superseded result can be reported, and it is used for no number here.
+An earlier formulation attenuated the optimum by a rectangular overlap of
+pollen shed and silk receptivity instead. It is \textbf{falsified} by the
+data it was meant to respect --- its errors at the two observed negative-TSI
+points have opposite signs ($-0.159$ at $-3.75$\,d, $+0.093$ at $-1.75$\,d)
+--- and is used for no number here.
 
 \subsection{Declared scenario grid}
 
@@ -524,26 +387,16 @@ early-side penalty is. None is designated correct. We declare a grid over
 all three --- two usable curves $\times$ three plateau settings $\times$
 three values of $\kappa \in \{1.5, 2.0, 2.5\}$, eighteen cells --- and
 Section~\ref{sec:results} reports the main experiment in every one, so that
-no headline rests on a single contested setting. Fig.~\ref{fig:curve} shows
-the published curves and the implemented response.
+no headline rests on a single contested setting.
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=\columnwidth]{../figs/fig1_yield_curve.pdf}
-\caption{(a) Published yield--TSI regressions~\cite{marahatta2025}.
-(b) The implemented relative response $r$ of \eqref{eq:Y}: plateau to
-$p_+ = 2$ days late, the fitted branch beyond it, and the reflected early
-branch at the three declared values of $\kappa$. Field-years outside the
-observed domain $[-3.75, 13.75]$ are excluded, not clipped.}
-\label{fig:curve}
-\end{figure}
+
 
 \subsection{Decision problem}
 
 Let $x_{i,d,o} \in \{0,1\}$ indicate that field $i$ is sown with female day
-$d$ and male offset $o \in \mathcal{O}$. Stage~1 solves
+$d$ and male offset $o$. Stage~1 solves
 \begin{align}
-\max \quad & \sum_{i \in \mathcal{F}} \sum_{d \in \mathcal{T}} \sum_{o \in \mathcal{O}}
+\max \quad & \sum_{i} \sum_{d} \sum_{o}
   a_i \, \mathbb{E}_{\xi}\!\left[ r(\TSI_i(d,o,\xi)) \right] x_{i,d,o}
   \label{eq:obj}\\
 \text{s.t.}\quad
@@ -555,28 +408,24 @@ $d$ and male offset $o \in \mathcal{O}$. Stage~1 solves
 & x_{i,d,o} = 0 \quad \text{if } V(d,o) \not\subseteq \mathcal{T},
   \label{eq:window}
 \end{align}
-where $\xi$ indexes weather scenarios and the expectation in
-\eqref{eq:obj} is taken after each visit in $V(d,o)$ has slipped to the next
-trafficable day in scenario $\xi$, so that rain-induced delay is priced
-into the plan. Constraint~\eqref{eq:cap} is what couples the fields: it is
-the reason a decision about one field changes the biology of another. A
-field left unassigned contributes nothing; the solver leaves a field
-unassigned only when \eqref{eq:cap} cannot accommodate it.
+where $\xi$ indexes weather scenarios and the expectation is taken after
+each visit in $V(d,o)$ has slipped to the next trafficable day in $\xi$, so
+rain-induced delay is priced into the plan. Constraint~\eqref{eq:cap}
+couples the fields: it is the reason a decision about one field changes the
+biology of another. A field left unassigned contributes nothing, and the
+solver leaves one unassigned only when \eqref{eq:cap} cannot accommodate it.
 
 Stage~2 is a policy $\Psi$ mapping the information available on day $t$ to a
 revised assignment for the fields not yet sown. Writing $\mathcal{I}_t$ for
 that information set, we impose \emph{non-anticipativity}:
 \begin{equation}
-\Psi(t,\xi) = \Psi(t,\xi') \quad \text{whenever} \quad
+\Psi(t,\xi) = \Psi(t,\xi') \ \text{ whenever } \
 \mathcal{I}_t(\xi) = \mathcal{I}_t(\xi').
 \label{eq:nonantic}
 \end{equation}
-Two scenarios that are indistinguishable from what has been observed must
-receive the same decision. Without~\eqref{eq:nonantic} a rolling-horizon
-policy can quietly consult the future and any measured benefit is
-meaningless.
+Without~\eqref{eq:nonantic} a rolling-horizon policy can quietly consult the
+future and any measured benefit is meaningless.
 
-% =========================================================================
 \section{Planners}
 \label{sec:strategies}
 % =========================================================================
@@ -584,384 +433,191 @@ meaningless.
 We compare seven planners. All select from \emph{one} shared candidate set
 and all are scored by the same function that produced the objective
 coefficients, so a difference between them cannot come from a difference in
-accounting. Five are rules a supervisor could follow without software; one
-is a dispatch script; one is the exact solve.
+accounting.
 
-\begin{description}
-\itemsep1pt
-\item[\textbf{B1 Current practice.}] Each field receives the per-hybrid
+\textbf{B1, current practice.} Each field receives the per-hybrid
 recommended offset --- the one maximising its mean relative yield per
 hectare over the planning ensemble, which is what a climatological
-degree-day table encodes and what~\cite{chassaigne2021,asefa2024} advise.
-Fields are then taken in arrival order, each started on the first day its
-visits fit. The agronomy is right; the logistics are naive. This is the
-baseline the literature describes.
-\item[\textbf{B2--B4 Other service orders.}] The same recommended offsets,
-served earliest-available-first, largest-area-first, and
-hardest-cross-first. A supervisor is as likely to use one of these as B1.
-\item[\textbf{B1R Offset-relaxed.}] Arrival order again, but each field may
-take its best feasible $(d, o)$ at \emph{any} offset rather than only the
-recommended one. This is the strongest rule we could write that still
-assigns one field at a time in a fixed order, and it is the one the exact
-solve has to beat.
-\item[\textbf{B5 Greedy dispatch.}] Fields ordered hardest-cross-first, each
-taking its highest-expected-yield feasible candidate. The ``could a short
-script do it?'' competitor.
-\item[\textbf{Exact.}] The set-partitioning problem
-\eqref{eq:obj}--\eqref{eq:window} solved to proven optimality against the
-weather ensemble.
-\end{description}
+degree-day table encodes and what~\cite{chassaigne2021,asefa2024} advise ---
+and fields are taken in arrival order, each started on the first day its
+visits fit. The agronomy is right, the logistics naive. This is the baseline
+the literature describes. \textbf{B2--B4} use the same offsets served
+earliest-available, largest-area and hardest-cross first. \textbf{B1R}
+keeps arrival order but lets each field take its best feasible $(d,o)$ at
+\emph{any} offset: the strongest rule we could write that still assigns one
+field at a time, and the one the exact solve must beat. \textbf{B5}, greedy
+dispatch, orders fields hardest-cross-first and gives each its
+highest-expected-yield feasible candidate --- the ``could a short script do
+it?'' competitor. \textbf{Exact} solves
+\eqref{eq:obj}--\eqref{eq:window} to proven optimality against the ensemble.
 
-The result of the paper is the exact solve against B1 and against the best
-of \{B1, B2, B3, B4, B1R\} at each farm size. We report both because the
-first is the comparison the literature invites and the second is the one
-that can be defended.
+The result is the exact solve against B1 and against the best of
+$\{$B1, B2, B3, B4, B1R$\}$ at each farm size: the first is the comparison
+the literature invites, the second the one that can be defended. A dynamic
+planner is also implemented, re-solving on uncommitted fields at four points
+subject to~\eqref{eq:nonantic}; Section~\ref{sec:replan} reports what it is
+worth.
 
-A dynamic planner is also implemented, re-solving on the uncommitted fields
-at four points through the window subject to~\eqref{eq:nonantic}.
-Section~\ref{sec:replan} reports what it is worth, which is nothing, and why
-that is the expected answer rather than a surprising one.
+\subsection{Conditioning for the dynamic planner}
 
-\subsection{Conditioning without inventing weather}
-
-A rolling-horizon policy needs a conditional forecast: given the season so
-far, what are the plausible remainders? The usual device is to splice the
-observed prefix onto sampled climatological futures, and it is unavailable
-here --- flowering comes from a crop model indexed by year, so a spliced
-season is not one the model can run.
-
-We therefore condition by \emph{historical analogue}. On each replanning day
-the season to date is compared with the same calendar stretch of every other
-year on record, scored on accumulated thermal time and cumulative rainfall,
-and the closest $m$ years become the forecast ensemble. Early in the window
-almost every year is a plausible analogue; as the season advances the set
-narrows, and that narrowing \emph{is} the information the adaptive policy
-has and the static plan does not. Non-anticipativity holds by construction:
-similarity is computed only over elapsed days, and the realised season's
-future is never read.
-
-\subsection{Two details that decide the outcome}
-
-Preliminary runs had the dynamic policy performing \emph{worse} than the
-static one, for two reasons worth recording because both are easy to get
-wrong. First, a rolling horizon free to reassign everything at each step can
-defer a field indefinitely, each revision locally attractive, until the
-window closes and the field is never sown; we freeze any operation within
-$\ell$ days of its scheduled date, which is also operationally realistic.
-Second, if the scenario-averaged objective already prices in rain slippage,
-the optimiser must not \emph{also} forbid days that might be wet --- doing
-both charges the same risk twice. We additionally adopt a revision only when
-it improves the expected objective over the plan already in hand by more
-than a tolerance $\epsilon$. Algorithm~\ref{alg:roll} gives the execution
-loop shared by every strategy.
-
-\begin{algorithm}[t]
-\caption{Rolling-horizon execution; the static planners skip lines 3--8}
-\label{alg:roll}
-\small
-\begin{algorithmic}[1]
-\STATE $P \leftarrow$ Stage-1 plan
-\FOR{$t = 1$ \TO $T$}
-  \IF{$t \bmod q = 0$ \AND $P \ne \emptyset$}
-    \STATE build conditional ensemble from $\mathcal{I}_t$ \COMMENT{obeys \eqref{eq:nonantic}}
-    \STATE freeze operations due within $\ell$ days
-    \STATE $P' \leftarrow$ re-solve \eqref{eq:obj}--\eqref{eq:window} over unsown fields
-    \STATE \textbf{if} $\mathrm{score}(P') > (1+\epsilon)\,\mathrm{score}(P)$ \textbf{then} $P \leftarrow P'$
-  \ENDIF
-  \STATE execute operations due by $t$, in planned order, while the field is
-         trafficable and crew capacity remains; otherwise defer
-\ENDFOR
-\STATE \textbf{return} $\sum_i a_i\, r(\TSI_i)$ from realised sowing days
-\end{algorithmic}
-\end{algorithm}
+A rolling-horizon policy needs a conditional forecast. Splicing an observed
+prefix onto sampled climatological futures is unavailable here, because
+flowering comes from a crop model indexed by year, so a spliced season is
+not one the model can run. We condition by \emph{historical analogue}: on
+each replanning day the season to date is compared with the same calendar
+stretch of every other year on record, scored on accumulated thermal time
+and cumulative rainfall, and the closest $m$ years become the forecast
+ensemble. Non-anticipativity holds by construction, since similarity is
+computed only over elapsed days. Two implementation details are worth
+recording, because both made the dynamic policy perform \emph{worse} than
+the static one in preliminary runs: a rolling horizon free to reassign
+everything can defer a field indefinitely until the window closes, so we
+freeze any operation within $\ell$ days of its date; and if the
+scenario-averaged objective already prices rain slippage, the optimiser must
+not \emph{also} forbid days that might be wet, which would charge the same
+risk twice. A revision is adopted only if it improves the expected objective
+by more than $\epsilon$.
 
 \subsection{From model to tool}
 \label{sec:tool}
 
-As a decision-support tool the scheduler takes four inputs the producer
-already holds or can download: (i) the field list with parent pair, area
-and drainage class; (ii) the sowing window and crew capacity $K$; (iii) a
-daily weather record for the site, from which the planning ensemble is
-drawn; and (iv) a flowering model for each parent --- here a precomputed
-CERES-Maize table, but a degree-day requirement from a seed catalogue
-would serve. Its output is a calendar: for each field, the female sowing
-day, the two male sowing days, and the expected yield; for each day, which
-fields the crew visits. Fig.~\ref{fig:practice} shows one such calendar
-beside the hand-made one it replaces. The plan is produced before the
-season by a single exact solve (Section~\ref{sec:results} reports solve
-times). A replanning mode exists, re-solving on the fields not yet sown
-using only weather observed to date, but on this evidence it is not worth
-switching on (Section~\ref{sec:replan}). Nothing
-in the pipeline requires a sensor on the field, and every component is
-free software.
+The scheduler takes four inputs the producer already holds or can download:
+the field list with parent pair, area and drainage class; the sowing window
+and crew capacity $K$; a daily weather record, from which the planning
+ensemble is drawn; and a flowering model per parent --- here a precomputed
+CERES-Maize table, though a degree-day requirement from a seed catalogue
+would serve. Its output is a calendar: per field, the female sowing day, the
+two male sowing days and the expected yield; per day, which fields the crew
+visits. The plan is produced before the season by
+one exact solve. A replanning mode exists but on this evidence is not worth
+switching on (Section~\ref{sec:replan}). Nothing requires a sensor on the
+field, and every component is free software.
 
-% =========================================================================
 \section{Experimental Design}
 \label{sec:design}
-% =========================================================================
 
-\subsection{Site and weather}
+\subsection{Site, weather and phenology}
 
-We study Ranebennur taluk, Haveri district, Karnataka
-($14.60^\circ$N, $75.60^\circ$E, 597~m), which together with the adjacent
-Ranebennur--Haveri belt is one of India's principal hybrid maize seed
+We study Ranebennur taluk, Haveri district, Karnataka ($14.60^\circ$N,
+$75.60^\circ$E, 597~m), one of India's principal hybrid maize seed
 production areas. Weather is twenty-one complete observed seasons,
-2005--2025, from NASA POWER~\cite{power}: daily maximum and minimum
-temperature, precipitation and solar radiation on the $0.5^\circ$ grid cell
-containing the site. Nothing is generated. Every season a strategy is
-evaluated on is a season that happened. Gridded reanalysis smooths local
-rainfall relative to a station gauge, which if anything understates the
-disruption the schedule must absorb.
+2005--2025, from NASA POWER~\cite{power}; nothing is generated, though
+gridded reanalysis smooths local rainfall, which if anything understates the
+disruption the schedule must absorb. Seed crops here are grown in
+\emph{rabi}, sown 1~October to 30~November so flowering falls in the dry
+December--January window when pollen is not washed off the tassel, giving
+$T = 61$ days (DOY 274--334). A field is untrafficable on any day with more
+than 5~mm of rain and for $\rho_i \in \{1,2,3\}$ days afterwards ---
+assumptions standing in for the soil-workability models
+of~\cite{bagheri2025}, which affect the level of yield rather than the
+comparison, since every planner faces the same closures.
 
-Seed crops here are grown in the \emph{rabi} season, sown between
-1~October and 30~November so that flowering falls in the dry December--January
-window when pollen is not washed off the tassel. The sowing window is
-therefore $T = 61$ days (day of year 274--334), and rain during it is the
-disturbance the schedule must absorb. We take a field to be untrafficable
-on any day with more than 5~mm of rain and for $\rho_i$ days afterwards,
-where $\rho_i \in \{1,2,3\}$ is its drainage class. The threshold and the
-recovery times are assumptions, not measurements; they stand in for the
-soil-workability models of~\cite{bagheri2025}, and because every strategy
-faces the same closures they affect the level of yield rather than the
-comparison between strategies.
+Flowering dates come from CERES-Maize in DSSAT-CSM~v4.8~\cite{dssat}, not
+from \eqref{eq:gdd}: for every cultivar, season and sowing day we recorded
+simulated anthesis, giving $8 \times 21 \times 61 = 10{,}248$ entries, all
+reaching anthesis, without water or nitrogen limitation so the table
+isolates thermal and photoperiodic control. The crop model supplies the
+reason adaptivity could matter: for a fixed parent pair sown on a fixed
+date, the gap between flowering dates varies across the twenty-one seasons
+with a standard deviation of 1.5~days on average (median 1.4, range
+0.6--2.3) --- weather, unknown when the plan is made, and at the measured
+penalty the first day of asynchrony costs 9.1\% of seed yield.
 
-\subsection{Phenology}
-
-Flowering dates come from CERES-Maize as implemented in
-DSSAT-CSM~v4.8~\cite{dssat}, not from the degree-day approximation of
-Section~\ref{sec:formulation}. For every combination of cultivar, season
-and sowing day in the window we ran the model and recorded the simulated
-anthesis date, giving a lookup table of $8 \times 21 \times 61 = 10{,}248$
-entries; all of them reach anthesis. Simulations are run without water or
-nitrogen limitation so that the table isolates the thermal and photoperiodic
-control of flowering, which is the mechanism the scheduler reasons about.
-
-The crop model, not the scheduler, supplies the reason adaptivity could
-matter here: for a fixed pair of parents sown on a fixed date, the gap between
-their flowering dates varies across the twenty-one seasons with a standard
-deviation of 1.5~days on average over the parent pairs of a farm (median 1.4,
-range 0.6--2.3). That variation is weather; it is unknown when the plan is
-made; and at the measured penalty the first day of asynchrony costs 9.1\% of
-seed yield.
-
-\subsection{Farms}
+\subsection{Farms and protocol}
 
 The farms are synthetic instances on observed weather. The eight cultivars
-are taken unmodified from DSSAT's distributed maize genotype file and span
-50.2 to 66.3 days to anthesis at this site. Parent pairs are drawn from this
-set so that the two lines of a field flower between 1.5 and 14 days apart,
-which is the range over which staggered sowing is actually practised; pairs
-are sampled across that range so that a farm contains both easy and
-difficult crosses. Field areas are drawn uniformly from 1.5 to 4.0~ha and
-drainage classes uniformly from $\{1,2,3\}$. Each configuration is
-replicated across five independently drawn farms. Crew capacity is fixed at
-$K = 2$ field-visits per day and farm size $N$ is swept from 10 to 70
-fields, which moves \emph{resource pressure},
-\[
-  \pi \;=\; \frac{N \cdot V}{T \cdot K},
-\]
-the ratio of crew-visits demanded to crew-visits available ($V = 3$ visits
-per field), from 0.25 to 1.72. At $\pi < 1$ the crew has slack; at $\pi > 1$
-some fields cannot be served on their preferred days and the scheduling
-problem binds.
+are taken unmodified from DSSAT's maize genotype file and span 50.2 to 66.3
+days to anthesis here. Parent pairs are drawn so the two lines flower
+between 1.5 and 14 days apart --- the range over which staggered sowing is
+practised --- so a farm contains both easy and difficult crosses. Areas are
+uniform on 1.5--4.0~ha, drainage classes uniform on $\{1,2,3\}$, and each
+configuration is replicated across five independently drawn farms. Crew
+capacity is fixed at $K = 2$ visits per day and $N$ swept from 10 to 70,
+moving \emph{resource pressure} $\pi = 3N/TK$ from 0.25 to 1.72.
 
-\subsection{Protocol}
-
-Evaluation is leave-one-season-out. Each scored season is held out, the
+Evaluation is leave-one-season-out: each scored season is held out, the
 planning ensemble is eight seasons sampled with a fixed seed from the
-remaining twenty, and no strategy ever sees the season it is tested on.
-Every strategy is evaluated on the same held-out seasons, the same farms
-and the same ensembles, so all comparisons are paired.
+remaining twenty, and every planner is evaluated on the same held-out
+seasons, farms and ensembles, so all comparisons are paired. The assignment
+experiment runs once per farm configuration over all twenty-one seasons:
+eleven farm sizes $\times$ five farms, 55 configurations. The robustness
+runs repeat it over the eighteen-cell scenario grid at $N = 70$ and with
+merging disallowed at $N = 40$ and $70$, three farms each. Gains are the
+ratio of total extra seed to total baseline seed over all farm--seasons in a
+cell, the more conservative of the two available estimators; intervals are
+bootstraps resampling whole cells. Problems are solved with CBC~\cite{cbc}
+through PuLP under a 300-second limit and a $0.005$ relative-gap acceptance
+threshold; all 109 solves terminated optimal well inside both.
 
-Two experiments differ in how many seasons they score, and we state the
-difference because it matters. The \emph{assignment} experiment (S1, S1$'$,
-the exact solve and the five hand rules) is run once per farm
-configuration and scored on all twenty-one seasons: eleven farm sizes
-$\times$ five independently drawn farms, 55 configurations in all. The
-robustness runs repeat it over the eighteen-cell scenario grid at $N = 70$
-and with visit merging disallowed at $N = 40$ and $N = 70$, three farms
-each. Replanning was tested and is reported in
-Section~\ref{sec:replan}.
-
-Gains are reported as the ratio of total extra seed to total baseline seed
-over all farm--seasons in a cell, which is what a producer's accounts would
-show and is the more conservative of the two available estimators;
-intervals are bootstraps that resample whole farms, since seasons within a
-farm are not independent. Where we report $p$-values they are from paired
-$t$-tests on farm--season differences and should be read as descriptive,
-given the number of cells.
-
-The assignment problems are solved with CBC~\cite{cbc} through PuLP under a
-300-second limit and a relative-gap acceptance threshold of $0.005$. All 55
-solves in the main experiment and all 54 in the scenario grid terminated
-optimal well inside both; the largest gap measured anywhere was $0.0032$
-and the slowest solve took 4.7~s (Table~\ref{tab:solver}). Every reported
-figure comes from a solve that met the threshold; no cell is reported as a
-lower bound.
-
-Two checks guard the comparison rather than the solver. First, each
-planner's objective value is compared against the score its chosen plan
-actually realises; across all 165 planner-cells the largest discrepancy is
-$4.3 \times 10^{-14}$, so no planner is scored by a different rule from the
-one it optimised. Second, every candidate seen by every planner comes from
-one call to the candidate builder per configuration, so the five hand
-rules, the greedy and the exact solve differ only in which candidates they
-select.
-
-% ---------------------------------------------------------------------------
 \section{External Validation}
 \label{sec:validation}
+% =========================================================================
 
-A simulation is only as good as the biology inside it, so we test the model
-against a dataset that played no part in building it.
+We test the model against a dataset that played no part in building it.
 Chassaigne-Ricciulli \textit{et al.}~\cite{chassaigne2021} report, for six
 three-way-cross tropical maize hybrids at CIMMYT's station in Agua Fr\'ia,
 Mexico, the parents' accumulated degree days at flowering, the differential
-sowing interval they recommend, and a ranking of the six by difficulty of
-seed production. None of it entered our model: the yield response comes from
-Nepal~\cite{marahatta2025} and the phenology from DSSAT~\cite{dssat}.
+sowing interval they recommend, and a ranking of the six by difficulty ---
+none of which entered our model. The core claim --- that the offset needed to
+synchronise two parents equals their thermal-time difference divided by the
+rate of degree-day accumulation --- predicts their recommended offsets with
+a mean absolute error of 1.5~days and the correct direction in six cases of
+six; ranking the hybrids by the offset the model requires reproduces their
+difficulty ordering at Spearman $\rho = 0.71$.
 
-The model's core claim --- that the offset needed to synchronise two parents
-equals their thermal-time difference divided by the rate of degree-day
-accumulation --- predicts their recommended offsets with a mean absolute
-error of 1.5~days and recovers the correct direction in six cases of six
-(Fig.~\ref{fig:cimmyt}(a)). Ranking the same hybrids by the offset the model
-requires reproduces their own difficulty ordering at Spearman
-$\rho = 0.71$ (Fig.~\ref{fig:cimmyt}(b)).
+\textbf{We are careful about what this does and does not establish.} It is a
+consistency check on arithmetic, not independent biological validation:
+CIMMYT's thermal-time formula is the same base-10, cap-30 sum as
+\eqref{eq:gdd}, so agreement confirms only that we implement that arithmetic
+as they do. It does not exercise the model that produced our results, since
+every scheduling number here comes from the CERES-Maize table, whose thermal
+time runs on estimated soil temperature with an $8^\circ$C base until ten
+leaves have appeared. And neither rank statistic is significant: at $n = 6$,
+$p = 0.094$ for the offsets and $p = 0.111$ for the ranking. We report them
+because a negative correlation would have counted against the model, not
+because they confirm it.
 
-\textbf{We are careful about what this does and does not establish}, because
-it is easy to overclaim. Three limits bound it, and all three matter.
-
-\emph{It is a consistency check on arithmetic, not independent biological
-validation.} CIMMYT's published thermal-time formula is the same base-10,
-cap-30 air-temperature sum given in \eqref{eq:gdd}. Agreement therefore
-confirms that we implement that arithmetic as they do, using their reported
-degree-day requirements. It is a necessary condition, not a demonstration
-that the biology transfers.
-
-\emph{It does not exercise the model that produced the results.} Every
-scheduling number in this paper comes from the CERES-Maize table, whose
-thermal time runs on estimated soil temperature with an $8^\circ$C base
-until ten leaves have appeared, and which adds photoperiod and
-leaf-appearance terms. The validation exercises \eqref{eq:gdd}, not that
-pathway, and not DSSAT's cultivar coefficients.
-
-\emph{Neither rank statistic is significant.} At $n = 6$, the offset
-correlation gives $p = 0.094$ and the difficulty ranking $p = 0.111$.
-Both are suggestive and neither clears a conventional threshold. We report
-them because a negative or absent correlation would have counted against the
-model, not because they confirm it.
-
-Finally and most importantly: this does not validate the scheduler. No one
-has executed one of our schedules on real fields and weighed the resulting
-seed.
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=\columnwidth]{../figs/fig7_cimmyt.pdf}
-\caption{External validation against CIMMYT's published seed-production
-recommendations~\cite{chassaigne2021}. (a) Predicted against recommended
-sowing offsets for six three-way-cross hybrids; the line is parity.
-(b) Hybrid difficulty ranking.}
-\label{fig:cimmyt}
-\end{figure}
-
-% =========================================================================
 \section{Results}
 \label{sec:results}
 % =========================================================================
 
 \subsection{The optimised assignment against hand rules}
 
-All numbers in this section come from the corrected engine
-(Section~\ref{sec:design}); every planner selects from one shared candidate
-set and execution re-scores through the same function, so the objective
-coefficient and the realised score are the same number. Across all 165
-planner-cells the largest discrepancy between the two is
-$4.3 \times 10^{-14}$. Every joint solve terminated optimal, the largest
-measured LP gap was $0.0032$ against an acceptance threshold of $0.005$, and
-none of the 89{,}418 field-years evaluated fell outside the observed TSI
-domain.
+Every planner selects from one shared candidate set and execution re-scores
+through the same function, so across all 165 planner-cells the largest gap
+between a planner's objective and the score its plan realises is
+$4.3 \times 10^{-14}$. Every joint solve terminated optimal, the largest LP
+gap was $0.0032$ against a $0.005$ acceptance threshold, and none of the
+89{,}418 field-years evaluated fell outside the observed TSI domain.
 
 \emph{What the baseline is.} Current practice as the literature describes it
---- the per-hybrid recommended offset, fields taken in arrival order, each
-started on the first day its visits fit --- is one rule among several that a
-supervisor could follow without software. Reporting a gain against it alone
-would flatter the optimiser, because it is the weakest of the family: it
-leaves about half the crew-days unused (50.8\% utilisation at $N = 40$,
-49.2\% at $N = 70$) and abandons any field whose recommended offset has no
-free day left. We therefore report every result twice --- against that rule,
-and against \emph{the best of five} hand rules evaluated on the same
-candidate set: four service orders over the recommended offset (arrival,
-earliest-available, largest-area, hardest-cross) and a fifth that keeps
-arrival order but lets each field take its best feasible offset rather than
-only the recommended one. The second figure is the honest one and is what we
-claim.
+is only one rule a supervisor could follow, and it is the weakest: it leaves
+about half the crew-days unused (50.8\% utilisation at $N = 40$, 49.2\% at
+$N = 70$) and abandons any field whose recommended offset has no free day
+left. Claiming against it alone would flatter the optimiser, so we report
+every result twice --- against that rule, and against \emph{the best of
+five} hand rules on the same candidate set. The second is what we claim.
 
-\emph{The gain is conditional on capacity binding.} Table~\ref{tab:solution}
-gives the result. Pooled over all 55 farm configurations the exact assignment
-yields $+20.8$\% more than the best hand rule (95\% CI $+18.5$ to $+23.1$\%,
-10{,}000-sample bootstrap over cells), and $+42.5$\% ($+37.0$ to $+47.8$\%)
-against practice as described. But the pooled figure hides the finding that
-matters: where the crew has slack ($N = 10$, $20$; resource pressure
-$\pi < 0.5$) the best hand rule is \emph{as good as exact optimisation} ---
-$+0.09$\% and $+0.21$\%, differences of no practical size. The optimiser
-earns its keep only once the crew is over-subscribed, where the gain runs
-from $+15.1$\% at $N = 30$ to $+35.2$\% at $N = 70$. A producer whose crew
-is not the binding constraint does not need this tool, and we would rather
-say so than average the two regimes together.
+\emph{The gain is conditional on capacity binding}  (Table~\ref{tab:solution}, Fig.~\ref{fig:practice}). Pooled over all 55 configurations the exact
+assignment yields $+20.8$\% more than the best hand rule (95\% CI $+18.5$ to
+$+23.1$, 10{,}000-sample bootstrap over cells) and $+42.5$\% ($+37.0$ to
+$+47.8$) against practice as described. The pooled figure hides what
+matters: where the crew has slack ($N = 10, 20$; $\pi < 0.5$) the best hand
+rule is as good as exact optimisation --- $+0.09$\% and $+0.21$\% --- and
+only once the crew is over-subscribed does the gain appear, running from
+$+15.1$\% at $N = 30$ to $+35.2$\% at $N = 70$.
 
-\emph{The mechanism is offset relaxation, not visit merging.} Working
-through fields in order at the recommended offset exhausts the early part of
-the window --- the only part where, for many parent pairs, that offset keeps
-every ensemble year inside the observed TSI domain --- and then abandons the
-rest: 22 of 70 fields sown at $N = 70$, with the last 24 days of the window
-empty. The optimiser places 42 by giving up a day or two of synchrony on
-some fields, which opens later sowing days for them and frees contested
-early days for others. The fifth hand rule makes the same trade greedily and
-recovers a good part of the gain (28 fields), which is why it is the
-baseline to beat. Deciding \emph{which} fields should give up synchrony for
-\emph{which others} is the coupled part, and it is what the solver adds.
-Visit merging --- taking an offset at which a male sowing falls on the
-female's day, so the field costs two visits instead of three --- is a second
-and smaller source: forbidding it costs the optimiser seven of its 42 fields
-at $N = 70$ and about a third of the gain, which still leaves $+23$\%
-(Section~\ref{sec:results}-D).
-
-\emph{The price.} The optimiser accepts worse mean synchrony per field in
-exchange for serving more of them. That trade is the content of the
-decision: a scheduler insisting on perfect synchrony everywhere sows fewer
-fields and produces less seed in total.
-
-\begin{figure*}[t]
-\centering
-\includegraphics[width=\textwidth]{../figs/fig12_practice.pdf}
-\caption{What the tool changes, and when. One farm ($N = 70$, $K = 2$,
-$\pi = 1.72$). (a) Current practice as described holds every field to its
-recommended offset, fills the window from the front, exhausts the
-agronomically admissible early days and abandons 48 of 70 fields; the last
-three weeks of the window stand empty. (b) The exact assignment relaxes the
-offset on some fields and places 42. (c) Mean gain against resource pressure
-$\pi$: against practice as described (grey), against the best of five hand
-rules (blue), and the greedy dispatcher against that same best rule (red).
-Below $\pi \approx 0.5$ the exact solve is worth nothing over a good hand
-rule; the dotted line marks $\pi = 1$.}
-\label{fig:practice}
-\end{figure*}
-
-\subsection{Is an exact solver needed?}
-
-The greedy dispatcher receives the same candidate set as the optimiser and
-differs only in assigning fields one at a time, hardest cross first, rather
-than jointly. Against practice as described it looks useful ($+6.6$\%
-pooled). Against the best hand rule it is \emph{worse}: $-9.6$\% pooled
-(95\% CI $-11.0$ to $-8.1$\%), and worse at every $N$ from 35 upward.
-Taking the best slot for each hard field in turn spends the contested
-early days on synchrony and leaves later fields nowhere to go. A
-one-field-at-a-time rule cannot make the joint trade however it is ordered,
-so a sensible script is not enough at exactly the scale where the problem
-matters --- and since the exact solve costs seconds
-(Table~\ref{tab:solver}), there is no reason to settle for one.
+\emph{The mechanism is offset relaxation.} Working through fields in order
+at the recommended offset exhausts the early part of the window --- the only
+part where, for many parent pairs, that offset keeps every ensemble year
+inside the observed domain --- and abandons the rest: 22 of 70 fields sown
+at $N = 70$, the last three weeks empty. The optimiser places 42 by giving
+up a day or two of synchrony on some fields, opening later days for them and
+freeing contested early days for others. B1R makes the same trade greedily
+and reaches 28, which is why it is the baseline to beat; deciding
+\emph{which} fields concede to \emph{which others} is what the solver adds.
+The price is worse mean synchrony per field in exchange for serving more of
+them.
 
 \begin{table}[t]
 \centering
@@ -976,12 +632,9 @@ $N$ & $\pi$ & B1 & best & greedy & exact & B1 & best & exact & B1 & best \\
 10 & 0.25 & 24.8 & 25.8 & 25.8 & 25.8 & 10 & 10 & 10 & $+4.2$\% & $+0.1$\% \\
 20 & 0.49 & 51.0 & 53.4 & 53.3 & 53.5 & 20 & 20 & 20 & $+4.9$\% & $+0.2$\% \\
 30 & 0.74 & 64.7 & 67.2 & 65.5 & 77.3 & 23 & 24 & 30 & $+19.6$\% & $+15.1$\% \\
-35 & 0.86 & 68.4 & 70.4 & 65.4 & 84.5 & 24 & 25 & 34 & $+23.6$\% & $+20.1$\% \\
 37 & 0.91 & 62.0 & 73.7 & 65.6 & 87.1 & 22 & 27 & 35 & $+40.6$\% & $+18.2$\% \\
 40 & 0.98 & 61.8 & 76.3 & 66.2 & 90.0 & 22 & 28 & 36 & $+45.6$\% & $+18.0$\% \\
-43 & 1.06 & 60.8 & 76.4 & 66.5 & 92.7 & 21 & 28 & 37 & $+52.6$\% & $+21.4$\% \\
 45 & 1.11 & 59.5 & 75.0 & 66.0 & 94.5 & 20 & 25 & 38 & $+58.8$\% & $+26.1$\% \\
-48 & 1.18 & 58.8 & 76.6 & 68.2 & 96.4 & 20 & 28 & 39 & $+64.1$\% & $+25.9$\% \\
 55 & 1.35 & 66.7 & 80.4 & 69.3 & 102.5 & 23 & 29 & 40 & $+53.8$\% & $+27.5$\% \\
 70 & 1.72 & 63.9 & 82.0 & 72.6 & 110.7 & 22 & 25 & 42 & $+73.3$\% & $+35.2$\% \\
 \hline
@@ -1002,136 +655,89 @@ bootstrap intervals of $[+37.0, +47.8]$ and $[+18.5, +23.1]$.
 
 
 
-\subsection{Solve time}
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{../figs/fig12_practice.pdf}
+\caption{What the tool changes. One farm ($N = 70$, $K = 2$, $\pi = 1.72$).
+(a) Practice holds every field to its recommended offset, fills the window
+from the front, exhausts the agronomically admissible early days and
+abandons 48 of 70 fields. (b) The exact assignment relaxes the offset on
+some fields and places 42. Crosses mark fields never sown.}
+\label{fig:practice}
+\end{figure}
 
-Table~\ref{tab:solver} gives the problem size and CBC wall time on one CPU
-core. The problem is small by the standards of mixed-integer programming
-(22\,677 binaries at $N = 70$) and every instance solved to proven
-optimality in under five seconds. Solve time is not what stands between a
-producer and this tool.
+\subsection{Is an exact solver needed?}
+
+The greedy dispatcher receives the same candidate set and differs only in
+assigning fields one at a time, hardest cross first. Against practice as
+described it looks useful ($+6.6$\% pooled); against the best hand rule it
+is \emph{worse}, $-9.6$\% pooled (95\% CI $-11.0$ to $-8.1$) and worse at
+every $N$ from 35 up. Taking the best slot for each hard field in turn
+spends the contested early days on synchrony and leaves later fields nowhere
+to go. No one-field-at-a-time rule can make the joint trade, however
+ordered --- and since the exact solve costs seconds (4.7\,s at $N = 70$,
+22{,}677 binaries), there is no reason to settle for one.
+
+\subsection{Robustness: yield response and visit accounting}
+
+Three parts of the scored response are contested rather than measured ---
+which published regression, how wide the plateau, how steep the reflection
+--- and the visit accounting is an assumption about the crew's scarce
+resource. We test both, rebuilding the candidate set under each setting so objective
+and scorer always agree.
 
 \begin{table}[t]
-\centering
-\caption{Stage-1 problem size and solve time}
-\label{tab:solver}
-\footnotesize
-\begin{tabular}{rrrrr}
-\hline
-$N$ & candidates & mean (s) & max (s) & max gap \\
-\hline
-10 & 3\,305 & 0.31 & 0.34 & $0.0000$ \\
-20 & 6\,448 & 0.70 & 0.82 & $0.0001$ \\
-30 & 9\,713 & 1.35 & 1.87 & $0.0006$ \\
-40 & 12\,866 & 2.21 & 2.65 & $0.0007$ \\
-55 & 17\,801 & 3.06 & 4.13 & $0.0017$ \\
-70 & 22\,677 & 3.32 & 4.74 & $0.0000$ \\
-\hline
-\end{tabular}
-\\[2pt]
-\footnotesize\raggedright Set-partitioning MILP solved with CBC on one core,
-5 farms per row. Every solve terminated optimal; the largest relative gap
-measured anywhere in the grid was $0.0032$, against an acceptance threshold
-of $0.005$. No reported cell is a lower bound.
-\end{table}
-
-\subsection{Sensitivity to the yield response}
-
-Three parts of the scored response are contested rather than measured: which
-published regression to use, how wide the plateau around the optimum is, and
-how steeply the early-TSI branch is reflected. We repeat the assignment
-experiment in all eighteen declared combinations at $N = 70$, three farms
-each, re-building the candidate set under each so that objective and scorer
-always agree (Table~\ref{tab:curves}). Every one of the 54 solves terminated
-optimal with a measured gap below $0.0005$.
-
-\begin{table}[t]
-\centering
-\caption{Exact assignment against the best of four service orders, over the
-eighteen-cell scenario grid, $N = 70$}
-\label{tab:curves}
-\footnotesize
-\setlength{\tabcolsep}{4pt}
-\begin{tabular}{@{}llrrr@{}}
-\hline
-curve & plateau & $\kappa = 1.5$ & $\kappa = 2.0$ & $\kappa = 2.5$ \\
-\hline
-winter y1 & PL0 & $+38.4$\% & $+40.6$\% & $+32.0$\% \\
-(primary) & PL1 & $+38.4$\% & $+40.7$\% & $+42.6$\% \\
-          & PL2 & $+37.4$\% & $+39.8$\% & $+41.6$\% \\
-\hline
-spring y2 & PL0 & $+37.3$\% & $+38.0$\% & $+38.6$\% \\
-          & PL1 & $+37.7$\% & $+39.1$\% & $+40.1$\% \\
-          & PL2 & $+37.1$\% & $+38.2$\% & $+38.6$\% \\
-\hline
-\end{tabular}
-\\[2pt]
-\footnotesize\raggedright Mean over three farms. The baseline here is the
-best of the four service orders, without the offset-relaxing rule of
-Table~\ref{tab:solution}, so these figures are not directly comparable with
-that table's $+35.2$\% at $N = 70$.
-\end{table}
-
-Across all 54 configurations the gain runs from $+28.6$\% to $+44.9$\%, mean
-$+38.7$\%, and is positive in every one. No cell comes close to overturning
-the result, and the primary setting is neither the most nor the least
-favourable. The conclusion does not rest on a contested modelling choice.
-
-\subsection{Sensitivity to the visit accounting}
-
-Crew capacity is counted in field-visits, so two parent sowings on one field
-on one day cost one slot. If the binding resource were sowing operations
-rather than trips to isolated fields, that saving would not exist. We re-ran
-the experiment with every merged candidate removed from the set given to
-\emph{every} planner, so the comparison stays like-for-like
-(Table~\ref{tab:nomerge}).
-
-\begin{table}[t]
-\centering
 \caption{Exact assignment with visit merging disallowed}
-\label{tab:nomerge}
+\label{tab:robust}
+\centering
 \footnotesize
-\setlength{\tabcolsep}{4pt}
+\setlength{\tabcolsep}{3.4pt}
 \begin{tabular}{@{}lrrrr@{}}
 \hline
  & \multicolumn{2}{c}{$N = 40$} & \multicolumn{2}{c}{$N = 70$} \\
  & allowed & forbidden & allowed & forbidden \\
 \hline
-gain over best of four orders & $+26.9$\% & $+20.3$\% & $+37.4$\% & $+23.3$\% \\
-gain over practice as described & $+45.6$\% & $+44.0$\% & $+75.7$\% & $+80.3$\% \\
+gain over best of four orders & $+26.9$ & $+20.3$ & $+37.4$ & $+23.3$ \\
 fields sown by the exact plan & 36 & 29 & 42 & 29 \\
 merged fraction of chosen plans & 0.58 & 0 & 0.88 & 0 \\
 \hline
 \end{tabular}
 \\[2pt]
-\footnotesize\raggedright Mean over three farms.
+\footnotesize\raggedright Gains per cent, mean over three farms. The
+baseline is the best of the \emph{four} service orders, without the
+offset-relaxing rule of Table~\ref{tab:solution}, so these are not directly
+comparable with that table's $+35.2$\% at $N = 70$.
 \end{table}
 
-Merging matters more than it is comfortable to report. Forbidding it costs
-the exact plan thirteen of its 42 fields at $N = 70$ and cuts the gain over
-the best ordering from $+37.4$\% to $+23.3$\%. It does not, however, account
-for the result: with every field costing three separate crew-days the
-optimiser still beats the best hand rule by about a fifth at both farm
-sizes, because choosing \emph{which} fields to serve and when remains a
-joint decision. A producer whose crew is limited by rows sown rather than by
-visits to isolated fields should expect the smaller figure, and should treat
-the larger one as contingent on the visit accounting being right for their
-operation.
+Over the eighteen-cell scenario grid at $N = 70$ (two curves $\times$ three
+plateaus $\times$ $\kappa \in \{1.5, 2.0, 2.5\}$, three farms each, all 54
+solves optimal with gaps below $0.0005$) the gain over the best of four
+service orders runs from $+28.6$\% to $+44.9$\%, mean $+38.7$\%, and is
+\emph{positive in every one}; the primary setting is neither the most nor
+the least favourable, so the conclusion does not rest on a contested
+modelling choice. Merging matters more than is
+comfortable to report: forbidding it --- by removing every merged candidate
+from the set given to \emph{every} planner, so the comparison stays
+like-for-like --- costs the exact plan thirteen of its 42 fields at $N = 70$
+and cuts the gain from $+37.4$\% to $+23.3$\%. It does not account for the
+result, since with every field costing three separate crew-days the
+optimiser still beats that baseline by about a fifth at both farm sizes; but
+a producer whose crew is limited by rows sown rather than visits to isolated
+fields should expect the smaller figure.
 
 \subsection{In-season replanning: withdrawn}
 \label{sec:replan}
 
 An earlier version of this work reported that revising the plan in-season
 adds a further $+2.26$\% on average, rising with the curvature of the yield
-penalty from $+0.49$\% at a flat response to $+9.14$\% at a sharp one, and
-vanishing where crew capacity exactly matches demand. Those figures were
-produced by the superseded engine. \textbf{We withdraw them.} They are not
-reported here as corrected results, and nothing in this paper depends on
-them.
+penalty from $+0.49$\% at a flat response to $+9.14$\% at a sharp one.
+Those figures came from the superseded engine. \textbf{We withdraw them};
+nothing here depends on them.
 
-The reason is not that the old numbers were miscomputed but that the
-corrected engine does not measure the same thing. Re-solving on the
-remaining fields at four points through the window, over the same ensemble
-candidate set, gives a mean gain of $+0.004$\% across nine configurations
+The reason is not that they were miscomputed but that the corrected engine
+does not measure the same thing. Re-solving on the remaining fields at four
+points through the window, over the same ensemble candidate set, gives a
+mean gain of $+0.004$\% across nine configurations
 ($N = 30, 45, 70 \times$ three farms; maximum $+0.026$\%). That is solver
 tolerance, and it is what theory predicts: the static solve is already
 globally optimal over that candidate set, so re-solving a sub-problem of it
@@ -1142,210 +748,162 @@ is zero.
 The superseded implementation measured something different and more
 interesting: it spliced weather actually observed up to each information
 cut-off onto the climatological ensemble members, so its replanner knew
-things the static plan did not. That is the \emph{information-side} value of
-adaptivity, and it is a real quantity. Measuring it on the corrected engine
-requires candidate sets conditioned on partially-realised seasons, which is
-an experimental design this paper does not implement. We state the question
-as open rather than carry forward a number we cannot reproduce.
-
-One consequence should be stated plainly: the comparison with the irrigation
-scheduling literature, which motivated the curvature sweep, goes with it.
-Whether the value of in-season adaptation in seed production is governed by
-the curvature of the biological response remains untested here.
+things the static plan did not. That \emph{information-side} value is a real
+quantity, but measuring it on the corrected engine requires candidate sets
+conditioned on partially-realised seasons, which this paper does not
+implement. We state the question as open rather than carry forward a number
+we cannot reproduce. The comparison with the irrigation scheduling
+literature, which motivated the curvature sweep, goes with it.
 
 \input{_iot}
 
-\begin{figure*}[t]
-\centering
-\includegraphics[width=\textwidth]{../figs/fig13_iot_decision_value.pdf}
-\caption{Decision value of simulated per-field soil-temperature sensing.
-(a) Between-field heterogeneity, capacity-constrained ($N=60$) against
-unconstrained ($N=12$); the red diamond is the matched unconstrained case at
-$N=60$ and $\sigma=0.7$, and the green band is the spread published for
-similarly managed fields. (b) Probe noise; percentages are the share of the
-oracle gain captured. (c) Missing observations. Bands are 95\% confidence
-intervals across farm seeds. All sensing is simulated.}
-\label{fig:iot}
-\end{figure*}
-
+% =========================================================================
 \section{Discussion}
 % =========================================================================
 
-\subsection{What to build, and in what order}
-
-The results separate into something every producer at scale should do
-and something only some should.
-
 \emph{Solve the assignment before the season, but only if the crew is the
 binding constraint.} Where it binds this is worth $+20.8$\% over the best
-hand rule and $+35.2$\% at the largest farm tested; it needs no forecast, no
-in-season data collection and no change to agronomy, and the whole stack is
-free software running in seconds. Where the crew has slack it is worth
-nothing measurable, and a producer there should use a sensible ordering rule
-and spend the effort elsewhere. The test costs nothing to apply: compute
-$\pi = 3N/TK$. Below about $\pi = 0.5$, do not build this.
+hand rule and $+35.2$\% at the largest farm tested, needs no forecast, no
+in-season data collection and no change to agronomy, and runs in seconds on
+free software. Where the crew has slack it is worth nothing measurable. The
+test costs nothing to apply: compute $\pi = 3N/TK$, and below about
+$\pi = 0.5$, do not build this.
 
-\emph{Replanning is not part of the recommendation.} On the corrected
-engine, re-solving in-season over the same information adds nothing
-(Section~\ref{sec:replan}). Whether it pays when the revision can use
-weather observed since sowing began is an open question here, so a producer
-should build the static planner first and treat adaptivity as unproven
-rather than as a second phase with a known return.
-
-\subsection{What we can and cannot say about adaptivity}
-
-Kelly \textit{et al.}~\cite{kelly2023} and Becker \textit{et
-al.}~\cite{becker2026} report that in-season adaptation adds little in
-irrigation scheduling. An earlier version of this work claimed to place that
-finding in a two-dimensional space --- how sharply the biology punishes a
-timing error, and how much freedom the operation has to correct one --- and
-to show that seed production sits away from the null end of both. That claim
-rested on the replanning experiment withdrawn in
-Section~\ref{sec:replan}, and we do not make it here.
-
-What survives is weaker and worth stating exactly. Seed production
-\emph{does} differ from irrigation in the first dimension: the yield
-response to a day of asynchrony is steep and measured
-(Eq.~\eqref{eq:yield}), where the response to a day of irrigation timing is
-not. Whether that steepness translates into value from in-season revision is
-precisely what we failed to measure, because the only adaptivity our
-corrected pipeline can price is adaptivity with no new information, which is
-worth nothing by construction. The question is open, and we would rather
-leave it open than answer it with a number we cannot reproduce.
+\emph{What we can and cannot say about adaptivity.} Kelly \textit{et
+al.}~\cite{kelly2023} and Becker \textit{et al.}~\cite{becker2026} report
+that in-season adaptation adds little in irrigation scheduling. An earlier
+version of this work claimed to place that finding in a two-dimensional
+space --- how sharply the biology punishes a timing error, and how much
+freedom the operation has to correct one. That claim rested on the
+replanning experiment withdrawn in Section~\ref{sec:replan} and we do not
+make it. What survives is weaker: seed production \emph{does} differ from
+irrigation in the first dimension, since the yield response to a day of
+asynchrony is steep and measured \eqref{eq:yield} where the response to a
+day of irrigation timing is not. Whether that steepness translates into
+value from in-season revision is precisely what we failed to measure,
+because the only adaptivity our corrected pipeline can price is adaptivity
+with no new information. The question is open, and we would rather leave it
+open than answer it with a number we cannot reproduce.
 
 \section{Limitations}
 \label{sec:limits}
 % =========================================================================
 
-\emph{This is a simulation study.} No seed was produced. The results say
-when these schedules are worth \emph{testing} in the field, not that a given
-gain will be realised on a given farm.
+\emph{This is a simulation study.} No seed was produced, and no one has
+executed one of our schedules and weighed the result. The findings say when
+these schedules are worth \emph{testing} in the field, not that a given gain
+will be realised on a given farm.
 
-\emph{Current practice is described from the literature, not observed.}
-We have not interviewed a producer or obtained a hand-made schedule. The
-baseline encodes what the agronomic recommendations say to do per field and
-the operational assumption those recommendations state~\cite{chassaigne2021}.
-Because that rule turns out to be the weakest of several a supervisor could
-follow, every result is also reported against the best of five hand rules
-including one that relaxes the recommended offset, and it is that second
-figure we claim. A real supervisor is somewhere between the two, and we
-cannot say where.
+\emph{Current practice is described, not observed.} We have not interviewed
+a producer or seen a hand-made schedule; the baseline encodes what the
+agronomic recommendations say per field and the operational assumption they
+state~\cite{chassaigne2021}. Because that rule turns out to be the weakest
+of several a supervisor could follow, every result is also reported against
+the best of five hand rules, and it is that figure we claim. A real
+supervisor is somewhere between the two and we cannot say where.
 
-\emph{The farms are synthetic.} The weather, the site and the crop model are
-real; field areas, drainage classes, parent pairs and crew capacity are
-sampled or assumed. The parents are public DSSAT cultivars, not the
-proprietary inbreds of any commercial hybrid. A producer's own calibration
-would shift the required offsets without changing the structure of the
-result, which depends on how variable the parent flowering gap is across
-seasons and on how hard the crew is worked rather than on the gap's mean.
-Flowering is simulated without water or nitrogen limitation; under stress
-asynchrony would be larger and more weather-dependent, which would if
-anything raise the value of both optimising and replanning.
+\emph{The farms are synthetic.} Weather, site and crop model are real; field
+areas, drainage classes, parent pairs and crew capacity are sampled or
+assumed, and the parents are public DSSAT cultivars rather than proprietary
+inbreds. A producer's own calibration would shift the required offsets
+without changing the structure of the result, which depends on how variable
+the parent flowering gap is across seasons and on how hard the crew is
+worked, not on the gap's mean. Under water or nitrogen stress, which we do
+not simulate, asynchrony would be larger and more weather-dependent.
 
 \emph{The yield response is from one site and extended on one side.} The
-regression is from Chitwan, Nepal, applied at a Karnataka site; it is the
+regression is from Chitwan, Nepal, applied at a Karnataka site, and is the
 only published quantitative seed-yield-versus-TSI response we could find.
-Section~\ref{sec:results} repeats the main experiment over an eighteen-cell
-grid spanning both usable fits, three plateau settings and three values of
-$\kappa$. The early-TSI branch is a declared reflection, not a fitted one:
-only its \emph{ordering} is constrained by data, through
-$\kappa > 1.43$. A rectangular floral-overlap form was used in an earlier
-version and is withdrawn here as falsified against the two observed
-negative-TSI points.
+The early-TSI branch is a declared reflection, not a fit: only its
+\emph{ordering} is constrained by data, through $\kappa > 1.43$. We also
+model one control lever and score mass rather than saleable seed --- nitrogen
+to the late parent is the second, and modelling it would require replacing
+the objective, since nitrogen changes seed weight and hence the grading and
+germination on which hybrid seed is
+sold~\cite{marahatta2025,priyanka2017,patil2026}.
 
-\emph{We model one control lever, and score mass rather than saleable seed.}
-Producers correct a flowering gap by staggering sowing \emph{and} by applying
-supplementary nitrogen to the late parent~\cite{priyanka2017,patil2026,%
-asefa2024}; we model only the first. Modelling the second would also require
-replacing our objective, since nitrogen changes seed weight and hence the
-size grading and germination on which hybrid seed is actually
-sold~\cite{marahatta2025}. A schedule maximising tonnage need not maximise
-certifiable seed.
+\emph{Crew capacity is counted in field-visits}, so two parent sowings on
+one field on one day are one visit --- right if the scarce resource is the
+supervised unit's presence at an isolated field, but if it were rows sown,
+about a third of the advantage would not be available.
 
-\emph{Crew capacity is counted in field-visits.} Two parent sowings on the
-same field on the same day are one visit. This is the right unit if the
-scarce resource is the supervised unit's presence at an isolated field; if
-it were rows sown, part of the optimiser's throughput advantage would not
-be available, and Section~\ref{sec:results} quantifies how much.
+\emph{In-season replanning is unresolved, not answered.} The
+scheduling-side value is zero on the corrected engine
+(Section~\ref{sec:replan}); the information-side value is not measured here
+and an earlier figure for it is withdrawn. Any such experiment would also
+have to charge for observation, which consumes the capacity the schedule
+competes for.
 
-\emph{In-season replanning is unresolved, not answered.} The scheduling-side
-value of re-solving is zero on the corrected engine
-(Section~\ref{sec:replan}), and the information-side value --- what a
-revision is worth when it can use weather observed since sowing began ---
-is not measured here. An earlier figure for it is withdrawn. Any such
-experiment would also have to charge for observation: learning a field's
-true state means visiting it and consuming the capacity the schedule is
-competing for, which we never debited.
+\emph{The engine was changed mid-project and not all old results survive.}
+An audit of every number against its source found that all the original
+scheduling results came from an implementation carrying a bonus constant in
+the solver objective, a falsified yield normaliser, first-male-only scoring
+and three divergent scoring paths. The assignment, practice, greedy,
+capacity-scaling and robustness experiments were re-run on the corrected
+engine and are what this paper reports; the replanning and curvature
+experiments were not reproducible on it and are withdrawn.
+\verb|records/AUDIT_FINAL.md| gives the disposition of every number.
 
-\emph{The engine was changed mid-project and the old results do not all
-survive.} An audit of every number against its source found that all the
-original scheduling results came from an implementation carrying a bonus
-constant in the solver objective, a falsified yield normaliser,
-first-male-only scoring and three divergent scoring paths. The assignment,
-practice, greedy, capacity-scaling and robustness experiments were re-run on
-the corrected engine and are what this paper reports; the replanning and
-curvature experiments were not reproducible on it and are withdrawn rather
-than carried forward. \verb|records/AUDIT_FINAL.md| gives the disposition of
-every number.
-
-% =========================================================================
 \section{Conclusion}
 % =========================================================================
 
 A hybrid seed producer's supervisor decides by hand which field a shared
 sowing crew starts on which day, under a crew limit that couples every field
-to every other, biology that is set by the start date, and rain that closes
-fields without notice. We formulated that decision as a stochastic
-assignment problem, solved it exactly, and evaluated it on twenty-one
-observed seasons at an Indian seed-production site with flowering dates from
-CERES-Maize.
+to every other, biology set by the start date, and rain that closes fields
+without notice. We formulated that decision as a stochastic assignment
+problem, solved it exactly, and evaluated it on twenty-one observed seasons
+with flowering dates from CERES-Maize.
 
 The practical result is conditional, and the condition is the finding. Where
 the crew has slack, exact optimisation is worth nothing: the best of five
-hand rules comes within $0.2$\% of it, and a producer in that regime should
-not build this. Once the crew is over-subscribed the exact assignment is
-worth $+20.8$\% more than the best hand rule and $+42.5$\% more than
-practice as the literature describes it, reaching $+35.2$\% and $+73.3$\% at
-the largest farm tested. The reason is not better agronomy --- every rule
-compared here has the correct per-hybrid offsets available --- but that
-holding each field to its recommended offset exhausts the admissible part of
-the sowing window and abandons the fields that arrive late. The optimiser
-trades a day or two of synchrony on some fields to place many more. That
-gain is positive in all 54 cells of an eighteen-cell grid over the contested
-parts of the yield response. Forbidding visit merging cuts it by about a
-third, to $+23$\% at the largest farm, so merging contributes but does not
-explain it.
+hand rules comes within $0.2$\% of it. Once the crew is over-subscribed the
+exact assignment is worth $+20.8$\% more than the best hand rule and
+$+42.5$\% more than practice as the literature describes it, reaching
+$+35.2$\% and $+73.3$\% at the largest farm tested. The reason is not better
+agronomy --- every rule compared here has the correct per-hybrid offsets
+available --- but that holding each field to its recommended offset exhausts
+the admissible part of the window and abandons the fields that arrive late,
+where the optimiser trades a day or two of synchrony on some fields to place
+many more. That gain is positive in all 54 cells of a grid over the
+contested parts of the yield response; forbidding visit merging cuts it by
+about a third, to $+23$\%, so merging contributes but does not explain it. A
+greedy dispatcher given the same information is \emph{worse} than a good
+ordering rule once capacity binds, by $9.6$\%: the trade is joint, and no
+one-field-at-a-time rule can make it.
 
-A greedy dispatcher given the same information is \emph{worse} than a good
-ordering rule once capacity binds, by $9.6$\%. The trade that produces the
-gain is joint, and no one-field-at-a-time rule can make it.
+We also report two negatives. In-season replanning over the same information
+is worth $+0.004$\% --- nothing --- and the earlier figure we had for it
+measured a different quantity and is withdrawn. And the external validation
+against CIMMYT's recommendations is a consistency check on degree-day
+arithmetic whose rank statistics do not reach significance at $n = 6$. What
+remains is a field trial: executing one of these schedules on real fields
+and weighing the seed.
 
-We also report two negatives. In-season replanning, re-solved over the same
-information, is worth $+0.004$\% --- nothing --- and the earlier figure we
-had for it measured a different quantity and is withdrawn. And the external
-validation against CIMMYT's published recommendations is a consistency check
-on degree-day arithmetic whose rank statistics do not reach significance at
-$n = 6$; it is not independent confirmation of the crop model that produced
-these results.
-
-What remains is a field trial: executing one of these schedules on real
-fields and weighing the seed.
-
-% =========================================================================
 \section{Reproducibility}
+\label{sec:repro}
 % =========================================================================
-The simulator, the DSSAT driver and precomputed anthesis table, the NASA
-POWER weather record, the experiment scripts and every result table are
-available at \url{https://github.com/<org>/anthesis-scheduling}. Every biological parameter is traceable to
-an open-access publication cited here, and the validation data of
-Section~\ref{sec:validation} are quoted verbatim in the released code so
-the comparison can be re-checked at source. All runs are seeded; the
-complete set of experiments reproduces in about three hours on two
-CPU cores.
 
-\balance
+Simulator, weather, the CERES-Maize phenology table, every runner, every
+result file and the audit trail are released under MIT at
+\textbf{[repository URL to be supplied]}. Three commands ---
+\verb|run_familyc_main.py|, \verb|run_familyc_robust.py| and
+\verb|validate_cimmyt.py| --- reproduce every scheduling number here, and
+\verb|records/verify_manuscript.py| recomputes every headline, interval,
+table cell and solver diagnostic directly from the raw result rows and
+compares each against the value printed in this paper; all 23 checks pass.
+The test suite is 200 tests, fifteen of them pinning the CERES
+soil-temperature clamp order and nineteen the sensing model, among them
+non-anticipativity. Every biological parameter is traceable to a published
+source, and the two declared choices --- $\kappa$ and the visit-cost
+accounting --- are both swept. One caution: the repository also contains a
+superseded engine whose results are not those reported here, retained so the
+withdrawn figures stay inspectable. \verb|records/AUDIT_FINAL.md| gives the
+disposition of every number.
+
+
 \begin{thebibliography}{99}
-\footnotesize
+\scriptsize
+\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}
 
 \bibitem{marahatta2025}
 S.~Marahatta, R.~Basnet, S.~Bastola, and P.~R.~Dulal,
@@ -1360,8 +918,7 @@ T.~D.~Kelly, T.~Foster, and D.~M.~Schultz,
 
 \bibitem{becker2026}
 C.~J.~Becker \textit{et al.},
-``Optimizing irrigation and fertilization strategies for crop growth: a
-comparative study of genetic algorithm and model predictive control under
+``Optimizing irrigation and fertilization strategies for crop growth under
 weather uncertainty,'' \textit{Archives of Computational Methods in
 Engineering}, 2026.
 
@@ -1382,11 +939,6 @@ A.~E.~Fonseca \textit{et al.},
 ``Simulating potential kernel production in maize hybrid seed fields,''
 \textit{Crop Science}, vol.~44, pp.~1696--1709, 2004.
 
-\bibitem{schneider2005}
-E.~Schneider,
-``Improving the accuracy of kernel set simulation in hybrid maize,''
-Ph.D. dissertation, Iowa State University, 2005.
-
 \bibitem{khalilzadeh2022}
 Z.~Khalilzadeh and L.~Wang,
 ``Corn planting and harvest scheduling under storage capacity and growing
@@ -1398,12 +950,6 @@ F.~Montenegro-Dos Santos \textit{et al.},
 ``A rolling horizon scheme for rescheduling in agricultural harvest,''
 \textit{Computers and Electronics in Agriculture}, 2023.
 
-\bibitem{shared2022}
-Y.~Wang \textit{et al.},
-``A two-step framework for dispatching shared agricultural machinery with
-time windows,'' \textit{Computers and Electronics in Agriculture}, vol.~192,
-art.~106607, 2021.
-
 \bibitem{chassaigne2020}
 A.~A.~Chassaigne-Ricciulli \textit{et al.},
 ``Development of seed production technology of CIMMYT tropical single cross
@@ -1411,8 +957,8 @@ maize hybrids,'' \textit{Agriculture}, vol.~10, no.~8, art.~318, 2020.
 
 \bibitem{asefa2024}
 G.~Asefa \textit{et al.},
-``Evaluating released maize hybrids parents for yield producibility and
-nicking time in mid altitude of western and north western Ethiopia,''
+``Evaluating released maize hybrid parents for yield producibility and
+nicking time in Ethiopia,''
 \textit{SVU-Int.\ J.\ Agric.\ Sci.}, vol.~6, no.~3, pp.~1--12, 2024.
 
 \bibitem{priyanka2017}
@@ -1441,39 +987,18 @@ vol.~13, no.~7, art.~1317, 2023.
 
 \bibitem{bagheri2025}
 P.~Bagheri Tookanlou \textit{et al.},
-``Predicting readiness of arable land and scheduling of tillage operations
-using finite-horizon Markov decision process and Gaussian state space
-models,'' \textit{Operational Research}, vol.~25, 2025.
+``Predicting readiness of arable land and scheduling of tillage operations,'' \textit{Operational Research}, vol.~25, 2025.
 
 \bibitem{lambrechts2007}
 O.~Lambrechts, E.~Demeulemeester, and W.~Herroelen,
 ``Proactive and reactive strategies for resource-constrained project
-scheduling with uncertain resource availabilities,'' \textit{J.\ Scheduling},
+scheduling,'' \textit{J.\ Scheduling},
 vol.~11, pp.~121--136, 2008.
-
-\bibitem{vandevonder2007}
-S.~Van de Vonder, E.~Demeulemeester, and W.~Herroelen,
-``A classification of predictive-reactive project scheduling procedures,''
-\textit{J.\ Scheduling}, vol.~10, pp.~195--207, 2007.
-
-\bibitem{demeulemeester2009}
-E.~L.~Demeulemeester and W.~S.~Herroelen,
-\textit{Robust Project Scheduling}. Hanover, MA: Now Publishers, 2009.
 
 \bibitem{dssat}
 J.~W.~Jones \textit{et al.},
 ``The DSSAT cropping system model,'' \textit{European Journal of Agronomy},
 vol.~18, pp.~235--265, 2003.
-
-\bibitem{birge}
-J.~R.~Birge and F.~Louveaux,
-\textit{Introduction to Stochastic Programming}, 2nd ed. Springer, 2011.
-
-
-\bibitem{hulley2013}
-S.~B.~Hulley, S.~R.~Cummings, W.~S.~Browner, D.~G.~Grady, and T.~B.~Newman,
-\textit{Designing Clinical Research}, 4th ed. Philadelphia, PA: Lippincott
-Williams \& Wilkins, 2013, ch.~2.
 
 \bibitem{power}
 NASA Langley Research Center, ``POWER Project: daily meteorological data,''
@@ -1481,7 +1006,7 @@ NASA Langley Research Center, ``POWER Project: daily meteorological data,''
 
 \bibitem{cbc}
 J.~Forrest \textit{et al.}, ``coin-or/Cbc: COIN-OR branch-and-cut solver,''
-Zenodo, 2024, \url{https://doi.org/10.5281/zenodo.2720283}.
+Zenodo, 2024.
 
 \end{thebibliography}
 

@@ -33,10 +33,9 @@ def rows(sol):
         out[c.fid] = sorted(int(d) for d in c.cost)
     return out
 
-fig = plt.figure(figsize=(13.0, 4.0))
-gs = fig.add_gridspec(1, 3, width_ratios=[1, 1, 1], wspace=0.30)
-for k, (sol, ttl) in enumerate([(b1, "(a) practice: recommended offset, arrival order"),
-                                 (op, "(b) optimised assignment")]):
+fig = plt.figure(figsize=(7.0, 2.9))
+gs = fig.add_gridspec(1, 2, width_ratios=[1, 1], wspace=0.28)
+for k, (sol, ttl) in enumerate([(b1, "(a) practice"), (op, "(b) optimised")]):
     ax = fig.add_subplot(gs[0, k]); rr = rows(sol)
     for fid in range(N):
         if fid in rr:
@@ -46,33 +45,15 @@ for k, (sol, ttl) in enumerate([(b1, "(a) practice: recommended offset, arrival 
         else:
             ax.plot([W[0]-1.2], [fid], "x", ms=3.0, color="#c0392b")
     ax.set_xlim(W[0]-3, W[-1]+1); ax.set_ylim(-1, N)
-    ax.set_xlabel("day of year"); ax.set_title(ttl, fontsize=9)
-    ax.text(0.97, 0.05, f"{sol.n_sown} of {N} sown", transform=ax.transAxes,
-            va="bottom", ha="right", fontsize=9)
+    ax.set_xlabel("day of year"); ax.set_title(ttl, fontsize=8.5)
+    ax.text(0.97, 0.05, f"{sol.n_sown}/{N} sown", transform=ax.transAxes,
+            va="bottom", ha="right", fontsize=8)
     if k == 0:
         ax.set_ylabel("field")
         ax.annotate("never sown", xy=(W[0]-1.2, N*0.80), xytext=(W[0]+9, N*0.93),
                     fontsize=7.4, color="#c0392b",
                     arrowprops=dict(arrowstyle="->", color="#c0392b", lw=0.7))
 
-ax = fig.add_subplot(gs[0, 2])
-d = pd.read_csv("results_fc_main/FC_all_planners.csv")
-p = d.pivot_table(index=["n_fields","farm_seed"], columns="planner", values="execution")
-p["BEST"] = p[HAND].max(axis=1)
-ns = sorted(p.index.get_level_values(0).unique())
-g1 = [100*(p.loc[n]["B6_joint"]/p.loc[n]["B1_sequential"]-1).mean() for n in ns]
-gb = [100*(p.loc[n]["B6_joint"]/p.loc[n]["BEST"]-1).mean() for n in ns]
-gg = [100*(p.loc[n]["B5_greedy"]/p.loc[n]["BEST"]-1).mean() for n in ns]
-press = [3*n/(len(W)*m.capacity) for n in ns]
-ax.axhline(0, color="k", lw=0.6)
-ax.axvline(1.0, color="0.6", lw=0.8, ls=":")
-ax.plot(press, g1, "o-", ms=3.5, lw=1.3, color="#7f8c8d", label="exact vs practice")
-ax.plot(press, gb, "s-", ms=3.5, lw=1.6, color="#1f4e79", label="exact vs best hand rule")
-ax.plot(press, gg, "^-", ms=3.5, lw=1.3, color="#c0392b", label="greedy vs best hand rule")
-ax.set_xlabel(r"resource pressure $\pi = 3N/TK$")
-ax.set_ylabel("gain (%)")
-ax.set_title("(c) the gain appears only once capacity binds", fontsize=9)
-ax.legend(fontsize=7.4, frameon=False, loc="upper left")
 for sp in ("top","right"):
     for a in fig.axes: a.spines[sp].set_visible(False)
 fig.savefig("figs/fig12_practice.pdf", bbox_inches="tight")

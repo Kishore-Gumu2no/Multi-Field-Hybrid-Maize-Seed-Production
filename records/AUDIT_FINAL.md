@@ -55,13 +55,28 @@ other service orderings over the SAME recommended offsets do better, and
 B1 alone would overstate the contribution, so every headline is given twice:
 against B1, and against the best of the four orderings.
 
-| quantity | vs B1_sequential | vs best ordering |
-|---|---|---|
-| optimised assignment, pooled | +42.47% [+36.98, +47.79] | **+24.45% [+22.22, +26.50]** |
-| optimised assignment, N = 70 | +73.31% | +35.20% |
-| greedy, pooled | +6.57% | **-6.91%** |
+Two baseline families appear in this project and they must not be confused:
+
+* **best of four** --- the four service orders over the recommended offset
+  (arrival, earliest-available, largest-area, hardest-cross).
+* **best of five** --- those four plus the offset-relaxing rule B1R, which
+  keeps arrival order but lets each field take its best feasible offset.
+
+The five-rule family is the stronger baseline and is what the manuscript
+claims against. An earlier draft of this audit quoted +24.45% pooled; that
+figure is the **four**-rule family, computed before B1R was added to the
+grid, and is superseded. Both families give the same +35.20% at N = 70,
+because B3_largest wins there and B1R does not.
+
+| quantity | vs B1_sequential | vs best of four | vs best of five |
+|---|---|---|---|
+| optimised assignment, pooled | +42.47% [+36.98, +47.79] | +24.45% | **+20.84% [+18.48, +23.08]** |
+| optimised assignment, N = 70 | +73.31% | +35.20% | **+35.20%** |
+| greedy, pooled | +6.57% | -6.91% | **-9.60%** |
 
 95% intervals are a 10,000-sample bootstrap over the 55 (N, seed) cells.
+Tables `tab:curves` and `tab:nomerge` report against the **four**-rule
+family, because those runs predate B1R; both carry a footnote saying so.
 
 ### Saturation
 
@@ -159,7 +174,39 @@ E7 and E8, the entire simulated-sensing study, run on Family C throughout.
 the only capacity model whose LP gaps satisfy the acceptance threshold; no
 claim is made for operations, hours or hectares.
 
-## 10. Unresolved publication risks
+## 10. Manuscript condensation (final phase)
+
+The manuscript was reduced from 14 pages to 9 (8 pages of body plus one of
+references) without altering a single claim, number or caveat. What was
+removed was presentation, not evidence:
+
+* three figures --- the yield-response curve, the CIMMYT validation
+  scatter, and the IoT decision-value panels. Every number each carried is
+  stated in the text or a table.
+* three tables --- the related-work positioning matrix, the solver timing
+  table, and the sensing ablation table --- plus the scenario-grid half of
+  the robustness table. All their content is in prose.
+* the rolling-horizon execution algorithm, which supported the withdrawn
+  replanning result.
+* four references consolidated where several backed one claim
+  (19 remain, all cited).
+* roughly 55% of the prose, by compression rather than deletion of content.
+
+The surviving figure is the practice-versus-optimised sowing calendar.
+Reaching exactly 8 pages would require deleting a whole section --- the
+external validation, the related-work positioning, or the sensing study ---
+so it was not done.
+
+## 11. Baseline definitions, stated once
+
+Every reported gain names its denominator. B1 is practice as described.
+"Best of four" is the four service orders. "Best of five" adds B1R, the
+offset-relaxing rule, and is the strongest hand baseline. Table~I and all
+abstract, discussion and conclusion figures use best-of-five; the robustness
+table uses best-of-four and says so in its footnote, because those runs
+predate B1R.
+
+## 12. Unresolved publication risks
 
 1. The in-season replanning contribution is withdrawn, not repaired. A
    reviewer who read the earlier version would find it missing.

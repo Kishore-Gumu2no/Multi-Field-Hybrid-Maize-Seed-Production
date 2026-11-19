@@ -1,19 +1,12 @@
-% ---------------------------------------------------------------------------
-% Simulated soil-temperature sensing. Slots in after the capacity section.
-% Numbers: records/E7_ci_from_rows.json, E8_visits_stats.json,
-% E8_sigma_stats.json, E8_ablation_stats.json. Figure: figs/fig13.
-% ---------------------------------------------------------------------------
 \section{Does field-level soil-temperature sensing change the schedule?}
 \label{sec:iot}
 
 \subsection{The gap the sensor would fill}
 
 CERES-Maize does not run the phase that sets flowering date on air
-temperature. While \texttt{LEAFNO .LE. 10}---the leaf-appearance phase---
-\texttt{MZ\_PHENOL.for} (lines 457--496) forms daily thermal time from
-\emph{soil} temperature, which it estimates from air temperature and solar
-radiation:
-%
+temperature. While \texttt{LEAFNO .LE. 10}, \texttt{MZ\_PHENOL.for} (lines
+457--496) forms daily thermal time from \emph{soil} temperature, estimated
+from air temperature and solar radiation:
 \begin{align}
 a &= 0.01061\,\mathrm{SRAD} + 0.5902, \label{eq:acoef}\\
 T_{\mathrm{day}} &= a\,T_{\max} + (1-a)\,T_{\min}, \label{eq:tdsoil}\\
@@ -21,77 +14,64 @@ T_{\mathrm{night}} &= 0.36354\,T_{\max} + 0.63646\,T_{\min}, \label{eq:tnsoil}\\
 \Delta T\!T &= \tfrac{1}{2}\!\left[\max(T_{\mathrm{night}},T_b)
   + \min(T_{\mathrm{day}},D_{\mathrm{opt}})\right] - T_b, \label{eq:dtt}
 \end{align}
-%
-with $T_b=8.0$\,\textdegree C and $D_{\mathrm{opt}}=34.0$\,\textdegree C from
-the shipped \texttt{MZCER048.ECO}, and $\Delta TT$ then capped at
-$D_{\mathrm{opt}}-T_b$. The clamps in~\eqref{eq:dtt} are applied to each
-component \emph{before} the average: a $40/20$\,\textdegree C pair yields
-$19.0$, whereas averaging first would yield $22.0$.
-
-Equations~\eqref{eq:acoef}--\eqref{eq:tnsoil} contain no field-specific term.
-Two fields under one weather station receive identical estimated soil
-temperature whatever their soil actually does. That imputation is the gap a
-buried probe would close, and it is the only point in the model where a
-soil-temperature measurement has anywhere to enter.
+with $T_b=8.0$ and $D_{\mathrm{opt}}=34.0$\,\textdegree C from the shipped
+ecotype file, $\Delta TT$ then capped at $D_{\mathrm{opt}}-T_b$. The clamps
+in~\eqref{eq:dtt} apply to each component \emph{before} the average: a
+$40/20$\,\textdegree C pair yields $19.0$, averaging first $22.0$.
+Crucially, \eqref{eq:acoef}--\eqref{eq:tnsoil} contain no field-specific
+term, so two fields under one weather station receive identical estimated
+soil temperature whatever their soil does. That imputation is the gap a
+buried probe would close, and the only point where a soil-temperature
+measurement has anywhere to enter.
 
 \subsection{Simulation design}
 
-\paragraph{Nothing here is a measurement.} No soil-temperature observation was
+\textbf{Nothing here is a measurement.} No soil-temperature observation was
 obtained for this study. Paired 5\,cm bare and vegetated probes exist in the
 Oklahoma Mesonet but sit behind an interactive request form and a
 robots-disallowed endpoint; USCRN publishes no probe-level soil temperature,
-both its daily and sub-hourly readme files stating that the reported soil
-values are ``calculated from these multiple independent measurements''. The
-sensing layer is therefore explicitly simulated, and every parameter of it is
-recorded on each result row.
+its readme files stating the reported values are ``calculated from these
+multiple independent measurements''. The sensing layer is explicitly
+simulated and every parameter of it is recorded on each result row.
 
-\paragraph{Substrate.} We implement \eqref{eq:acoef}--\eqref{eq:dtt} directly
-and calibrate one thermal threshold per cultivar against the study's existing
-DSSAT table (8 cultivars $\times$ 21 weather years $\times$ 61 sowing days,
-$n=1281$ per cultivar). The soil pathway reproduces the table to
-$2.62$\,d RMSE with mean absolute bias $0.14$\,d, against $2.70$\,d for the
-same arithmetic applied to air temperature. We use this as a self-consistent
-substrate rather than as a claim to reproduce DSSAT: truth and all planners
-run on it, so its absolute error cancels in the paired comparison, and its
-bias---the quantity that would \emph{not} cancel---is near zero.
+We implement \eqref{eq:acoef}--\eqref{eq:dtt} directly and calibrate one
+thermal threshold per cultivar against the existing DSSAT table ($n=1281$
+per cultivar), reproducing it to $2.62$\,d RMSE with mean absolute bias
+$0.14$\,d against $2.70$\,d for the same arithmetic on air temperature.
+This is a self-consistent substrate, not a claim to reproduce DSSAT: truth
+and all planners run on it, so its absolute error cancels in the paired
+comparison and its bias --- which would not --- is near zero.
 
-\paragraph{Heterogeneity.} Each field receives a constant soil thermal offset
-$\delta_i$. The default scale $\sigma=0.7$\,\textdegree C is not chosen here:
-it is the value already carried by \texttt{sim.core.make\_farm} as
-\texttt{temp\_bias=rng.normal(0.0,\,0.7)}, committed before this analysis
-existed. $\sigma$ is swept from $0$ regardless, and $\sigma=0$ is a null
-scenario in which a sensor must show no gain.
-
-\paragraph{Measurement.} A virtual probe reads the field's soil temperature
-with Gaussian noise of $0.5$\,\textdegree C---the documented accuracy of the
-Mesonet thermistors whose data we could not obtain---and misses days at a
-configurable rate. The estimator $\hat\delta_i$ is the mean over observed days
-of the residual between the measurement and the temperature
+Each field receives a constant soil thermal offset $\delta_i$. The default
+scale $\sigma=0.7$\,\textdegree C is \emph{not} chosen here: it is the value
+already carried by \texttt{sim.core.make\_farm}, committed before this
+analysis existed. $\sigma$ is swept from $0$ regardless, and $\sigma=0$ is a
+null scenario in which a sensor must show no gain. A virtual probe reads the
+field's soil temperature with Gaussian noise of $0.5$\,\textdegree C --- the
+documented accuracy of the Mesonet thermistors whose data we could not
+obtain --- and misses days at a configurable rate; $\hat\delta_i$ is the
+mean over observed days of the residual against what
 \eqref{eq:tdsoil}--\eqref{eq:tnsoil} would impute. Observation closes on day
-273, before the sowing window opens on day 274, so the channel is
+273, before the window opens on day 274, so the channel is
 non-anticipative: a field offset is a persistent property, not a forecast.
 
-\paragraph{Arms and parity.} Three planners differ only in belief.
-\textsc{conventional} believes every offset is zero, which is exactly what
-CERES does. \textsc{sensor} believes $\hat\delta_i$, falling back to zero
-where estimation failed. \textsc{oracle} believes the truth; it is
-unachievable and bounds the gain. Fields, parent pairs, areas, drainage,
-weather years, capacity model and budget, response scenario, objective and
-candidate enumeration rule are the same objects for all three. Candidates are
-enumerated by \texttt{build.build\_candidates} and selected by
-\texttt{optimise.solve}; every candidate coefficient and every executed score
-passes through \texttt{scoring.score\_plan}, so the objective coefficient and
-the execution score are the same number by construction.
+Three planners differ only in belief: \textsc{conventional} believes every
+offset is zero, exactly what CERES does; \textsc{sensor} believes
+$\hat\delta_i$, falling back to zero where estimation failed;
+\textsc{oracle} believes the truth and bounds the gain. Everything else ---
+fields, parent pairs, areas, weather years, capacity model and budget,
+response scenario, objective, candidate enumeration --- is the same object
+for all three, and every coefficient and executed score passes through one
+scoring function.
 
 \subsection{Capacity must bind before the question is meaningful}
 
-At the farm size used elsewhere in this study the sowing-capacity constraint
-is almost inactive: at $N=12$ fields over the 61-day window the constrained
-optimum is within $0.06\%$ of the unconstrained one. Measuring the value of
-information there measures nothing about scheduling under scarcity. At $N=60$
-the constraint binds properly---$17.7\%$ of objective under the visits model,
-$23.3\%$ under operations, $28.7\%$ under hours---and only $53$ of $60$ fields
-are sown at all. All capacity-constrained results below use $N=60$.
+At the farm size used elsewhere here the capacity constraint is almost
+inactive --- at $N=12$ the constrained optimum is within $0.06\%$ of the
+unconstrained one --- so measuring the value of information there measures
+nothing about scarcity. At $N=60$ it binds properly, $17.7\%$ of objective
+under the visits model, with only $53$ of $60$ fields sown. All
+capacity-constrained results use $N=60$.
 
 \subsection{Results}
 
@@ -100,7 +80,7 @@ are sown at all. All capacity-constrained results below use $N=60$.
 \caption{Change in objective against the conventional CERES pathway.
 Capacity-constrained rows: visits model, $N=60$, 6 farm seeds per level
 ($\sigma=0.7$ repeated at 12 seeds gives $+0.583\%$ $[+0.435,+0.732]$).
-Unconstrained rows: $N=12$, 12 seeds. 95\% confidence intervals across seeds.}
+95\% confidence intervals across seeds.}
 \label{tab:iot}
 \begin{tabular}{lrrrrr}
 \toprule
@@ -113,116 +93,72 @@ $\sigma$ (\textdegree C) & sensor (\%) & 95\% CI & seeds $>0$ & oracle (\%) & ca
 1.00 & $+1.050$ & $[+0.836,+1.263]$ & 6/6 & $+2.792$ & 0.38 \\
 2.00 & $+2.125$ & $[+1.789,+2.462]$ & 6/6 & $+3.891$ & 0.55 \\
 4.00 & $+6.065$ & $[+2.972,+9.157]$ & 6/6 & $+7.493$ & 0.81 \\
-\midrule
-\multicolumn{6}{l}{\emph{unconstrained, $N=12$}}\\
-0.00 & $-0.164$ & $[-0.185,-0.143]$ & 0/12 & $+0.000$ & --- \\
-0.70 & $+0.041$ & $[-0.035,+0.117]$ & 7/12 & $+0.255$ & 0.16 \\
-1.00 & $+0.178$ & $[+0.074,+0.282]$ & 10/12 & $+0.369$ & 0.48 \\
-4.00 & $+5.010$ & $[+3.910,+6.111]$ & 12/12 & $+5.324$ & 0.94 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \textbf{Scarcity makes the information worth having.} Matched at $N=60$ and
-$\sigma=0.7$, the sensor gains $+0.191\%$ $[-0.008,+0.389]$ without a binding
-capacity constraint---an interval spanning zero---and $+0.583\%$
-$[+0.435,+0.732]$ with one, positive in all twelve seeds. The oracle rises
-from $+1.642\%$ to $+2.279\%$ over the same contrast. Information about which
-fields run warm is worth more when the crew cannot serve every field, because
-it then also informs \emph{which} fields to sow and how to spend a scarce day,
-not only how to offset the parents within a field. The same direction appears
-in the offset-freedom ablation, where narrowing the male--female offset choice
-from eleven options to two raises the oracle gain from $+0.256\%$ to
-$+0.724\%$.
+$\sigma=0.7$, the sensor gains $+0.191\%$ $[-0.008,+0.389]$ without a
+binding capacity constraint --- an interval spanning zero --- and
+$+0.583\%$ $[+0.435,+0.732]$ with one, positive in all twelve seeds; the
+oracle rises from $+1.642\%$ to $+2.279\%$ over the same contrast.
+Information about which fields run warm is worth more when the crew cannot
+serve every field, because it then also informs \emph{which} fields to sow.
 
 \textbf{Scarcity also makes noise more expensive.} At $\sigma=0$ the oracle
 gain is exactly zero, as it must be, while the sensor loses $1.410\%$
-$[-1.505,-1.316]$, negative in every seed---against $0.164\%$ in the
-unconstrained case. Measurement noise read as real offset does not merely
-mis-set an offset; under scarcity it misallocates a day the crew cannot get
-back. A sensing layer that cannot be shown to do nothing when there is nothing
-to detect is not trustworthy when it reports something, and here the cost of
-that failure grows with resource pressure.
+$[-1.505,-1.316]$, negative in every seed, against $0.164\%$ unconstrained.
+Noise read as real offset does not merely mis-set an offset; under scarcity
+it misallocates a day the crew cannot get back.
 
-\textbf{A realistic probe leaves three quarters of the value unclaimed.} At
-$\sigma=0.7$ with $0.5$\,\textdegree C noise the sensor captures $0.25$ of the
-oracle gain. The ablation in Table~\ref{tab:abl} isolates why: a noiseless
-probe recovers the oracle \emph{exactly} ($+2.279\%$ against $+2.279\%$), and
-the captured share falls to $0.41$ at $0.25$\,\textdegree C and $0.25$ at
-$0.5$\,\textdegree C. The limiting quantity is instrument accuracy, not the
-scheduler and not the observation campaign.
+\textbf{A realistic probe leaves three quarters of the value unclaimed.} A
+noise ablation at $\sigma = 0.7$, six seeds, isolates why: a noiseless probe
+recovers the oracle \emph{exactly} ($+2.279\%$ against $+2.279\%$), and the
+captured share falls to $0.41$ at $0.25$\,\textdegree C, $0.25$ at
+$0.5$\,\textdegree C, $0.20$ at $1.0$ and $0.15$ at $2.0$. The limiting
+quantity is instrument accuracy, not the scheduler and not the observation
+campaign. Estimation degrades gracefully by comparison: losing three
+quarters of the observations moves the captured share only from $0.25$ to
+$0.18$, and with every observation lost the gain is exactly $+0.000\%$ with
+no plan changed, confirming the zero-belief fallback.
 
-\begin{table}[t]
-\centering
-\caption{Ablations, capacity-constrained, visits model, $N=60$, $\sigma=0.7$,
-6 seeds. The oracle is $+2.279\%$ throughout; ``captured'' is the sensor's
-share of it.}
-\label{tab:abl}
-\begin{tabular}{lrrr|lrrr}
-\toprule
-noise (\textdegree C) & sensor (\%) & $>0$ & captured &
-missing & sensor (\%) & $>0$ & captured \\
-\midrule
-0.00 & $+2.279$ & 6/6 & 1.00 & 0.00 & $+0.563$ & 6/6 & 0.25 \\
-0.25 & $+0.928$ & 6/6 & 0.41 & 0.25 & $+0.459$ & 6/6 & 0.20 \\
-0.50 & $+0.563$ & 6/6 & 0.25 & 0.50 & $+0.392$ & 6/6 & 0.17 \\
-1.00 & $+0.450$ & 6/6 & 0.20 & 0.75 & $+0.413$ & 6/6 & 0.18 \\
-2.00 & $+0.339$ & 5/6 & 0.15 & 1.00 & $+0.000$ & 0/6 & 0.00 \\
-\bottomrule
-\end{tabular}
-\end{table}
 
-\textbf{Estimation degrades gracefully; the fallback is exact.} Losing three
-quarters of the observations costs little---the captured share moves from
-$0.25$ to $0.18$---because the estimator averages over a twenty-day campaign
-and five surviving days still locate the offset. With every observation lost
-the gain is exactly $+0.000\%$ and no plan changes, confirming the
-zero-belief fallback.
 
-\subsection{Solver validity}
-
-Every capacity-constrained cell reported above was solved on the visits model
-with a measured LP gap of median $0.0001$ and maximum $0.0003$, well inside
-the $0.005$ acceptance rule, and no arm terminated on the time limit. The
-operations, hours and hectares accounting models do not reach that standard at
-$N=60$, and more solver time does not help. At a 45\,s limit every arm
-terminated time-limited with measured gaps of $0.011$--$0.034$; raising the
-limit to $300$\,s left the gaps on the same cell unchanged to five decimal
-places ($0.01140$, $0.02253$, $0.01441$) at twenty times the cost. The
-limitation is the quality of the LP bound for these cost structures, not
-search time: the relaxation of a multi-dimensional knapsack is weak, so a
-non-zero gap here means the bound cannot prove optimality rather than that the
-incumbent is that far from it. By the acceptance rule those cells are lower
-bounds, their spread exceeds the effect being measured, and one produced a
-negative oracle gain that cannot be real because the oracle optimises the
-objective it is scored on. They are excluded from inference rather than
-reported. Robustness of the conclusion to capacity accounting is therefore
-\emph{not} established here, and is listed as a limitation.
+\textbf{Solver validity.} Every capacity-constrained cell above was solved
+on the visits model with measured LP gap median $0.0001$, maximum $0.0003$,
+inside the $0.005$ acceptance rule, and no arm hit the time limit. The
+operations, hours and hectares models do not reach that standard at $N=60$
+and more solver time does not help: at a 45\,s limit every arm terminated
+time-limited with gaps $0.011$--$0.034$, and raising the limit to $300$\,s
+left the gaps on the same cell unchanged to five decimals
+($0.01140$, $0.02253$, $0.01441$) at twenty times the cost. The limitation
+is LP bound quality for these cost structures, not search time. Those cells
+are lower bounds, their spread exceeds the effect measured, and one produced
+a negative oracle gain that cannot be real, so they are excluded from
+inference. Robustness to capacity accounting is therefore \emph{not}
+established here.
 
 \subsection{What this does and does not establish}
 
 It establishes, inside this model and with simulated sensing, that the
-decision value of per-field soil-temperature measurement is governed by two
-things: the ratio of between-field heterogeneity to probe accuracy, and how
-tightly sowing capacity binds. Both raise the gain, and resource scarcity
-raises the cost of error at the same time. That is a transferable criterion
-for when such a system is worth building.
+decision value of per-field soil-temperature measurement is governed by the
+ratio of between-field heterogeneity to probe accuracy and by how tightly
+sowing capacity binds. Both raise the gain, and scarcity raises the cost of
+error at the same time. That is a transferable criterion for when such a
+system is worth building.
 
 It does not establish what the between-field heterogeneity of a commercial
-hybrid seed-production block actually is. Published same-site contrasts at
-5\,cm run 1--6\,\textdegree C between deliberately imposed treatments---mulch
-against bare soil, no-till against ploughed---but a seed-production block is
-managed uniformly, and the one continuous relationship available, soil
-temperature against percent residue cover at 0.0112--0.0293\,\textdegree C per
-point, implies 0.11--0.59\,\textdegree C between fields under one protocol.
-At the top of that range the constrained sensor gains about $+0.46\%$; at the
-bottom it is indistinguishable from zero and, if the fields are in truth
-identical, actively harmful. Establishing the real figure requires paired
-measurements we were unable to obtain, and the retrieval barriers are
-documented rather than worked around.
-
-The emulator's 2.6\,d RMSE against DSSAT exceeds the one-day decision unit;
-the comparison is paired so this cancels, but it would not cancel for any
-absolute claim about flowering date. No seed-yield improvement is claimed:
-the objective is the study's own area-weighted relative-yield response to
-anthesis--silking interval, and no physical sensor was deployed or tested.
+seed-production block actually is. Published same-site contrasts at 5\,cm
+run 1--6\,\textdegree C between deliberately imposed treatments, but such a
+block is managed uniformly, and the one continuous relationship available
+--- soil temperature against percent residue cover --- implies
+$0.11$--$0.59$\,\textdegree C between fields under one protocol. At the top
+of that range the constrained sensor gains about $+0.46\%$; at the bottom it
+is indistinguishable from zero and, if the fields are truly identical,
+actively harmful. Establishing the real figure requires paired measurements
+we were unable to obtain. The emulator's 2.6\,d RMSE against DSSAT also
+exceeds the one-day decision unit; the paired comparison cancels this, but
+it would not cancel for any absolute claim about flowering date. \textbf{No seed-yield
+improvement is claimed and no physical sensor was deployed or tested}: the
+objective is this study's own area-weighted relative-yield response to the
+anthesis--silking interval.
