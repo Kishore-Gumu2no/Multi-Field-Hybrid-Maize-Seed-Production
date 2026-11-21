@@ -42,11 +42,12 @@ This is a self-consistent substrate, not a claim to reproduce DSSAT: truth
 and all planners run on it, so its absolute error cancels in the paired
 comparison and its bias --- which would not --- is near zero.
 
-Each field receives a constant soil thermal offset $\delta_i$. The default
-scale $\sigma=0.7$\,\textdegree C is \emph{not} chosen here: it is the value
-already carried by \texttt{sim.core.make\_farm}, committed before this
-analysis existed. $\sigma$ is swept from $0$ regardless, and $\sigma=0$ is a
-null scenario in which a sensor must show no gain. A virtual probe reads the
+Each field receives a constant soil thermal offset $\delta_i$, drawn with
+scale $\sigma$. The default $\sigma=0.7$\,\textdegree C was \emph{not} chosen
+for this study: it was already fixed in the simulator's farm builder before
+the sensing question was posed, so the headline is not tuned to it.
+$\sigma$ is swept from $0$ regardless, and $\sigma=0$ is a null scenario in
+which a sensor must show no gain. A virtual probe reads the
 field's soil temperature with Gaussian noise of $0.5$\,\textdegree C --- the
 documented accuracy of the Mesonet thermistors whose data we could not
 obtain --- and misses days at a configurable rate; $\hat\delta_i$ is the

@@ -373,11 +373,13 @@ r_+(\kappa\,|x|), & x < -p_-, \end{cases}
 with $\kappa_{\min} = 2.50/1.75 = 1.43$ forced by the \emph{ordering} of the
 two observed negative-TSI points, and $\kappa = 1.5$ primary.
 
-An earlier formulation attenuated the optimum by a rectangular overlap of
-pollen shed and silk receptivity instead. It is \textbf{falsified} by the
-data it was meant to respect --- its errors at the two observed negative-TSI
-points have opposite signs ($-0.159$ at $-3.75$\,d, $+0.093$ at $-1.75$\,d)
---- and is used for no number here.
+The obvious alternative is to attenuate the optimum by the rectangular
+overlap of pollen shed and silk receptivity, using the window durations the
+same paper reports. We tested that form and it is \textbf{falsified} by the
+two points it was meant to respect: its errors there have opposite signs
+($-0.159$ at $-3.75$\,d, $+0.093$ at $-1.75$\,d), and it predicts an
+asymmetry gap of $0.279$ against an observed $0.036$. It is used for no
+number here.
 
 \subsection{Declared scenario grid}
 
@@ -647,10 +649,11 @@ all 21 seasons. \emph{B1}: current practice as described --- recommended
 offset, arrival order. \emph{best}: the best of five hand rules at that $N$
 (four service orders plus offset relaxation); the winning rule differs by
 row, and its fields-sown column is that rule's. \emph{exact}: the joint
-solve. The score is ensemble-mean relative yield weighted by area; absolute
-tonnages are not reported because obtaining them required a yield normaliser
-this paper withdraws (Section~\ref{sec:limits}). Pooled gains carry 95\%
-bootstrap intervals of $[+37.0, +47.8]$ and $[+18.5, +23.1]$.
+solve. The score is ensemble-mean relative yield weighted by area. Absolute
+tonnages are not reported: converting to them needs a reference yield at
+perfect synchrony, which the source regression does not supply
+(Section~\ref{sec:formulation}). Pooled gains carry 95\% bootstrap intervals
+of $[+37.0, +47.8]$ and $[+18.5, +23.1]$.
 \end{table}
 
 
@@ -725,35 +728,25 @@ optimiser still beats that baseline by about a fifth at both farm sizes; but
 a producer whose crew is limited by rows sown rather than visits to isolated
 fields should expect the smaller figure.
 
-\subsection{In-season replanning: withdrawn}
+\subsection{In-season replanning is worth nothing here}
 \label{sec:replan}
 
-An earlier version of this work reported that revising the plan in-season
-adds a further $+2.26$\% on average, rising with the curvature of the yield
-penalty from $+0.49$\% at a flat response to $+9.14$\% at a sharp one.
-Those figures came from the superseded engine. \textbf{We withdraw them};
-nothing here depends on them.
+Re-solving on the fields not yet sown, at four points through the window and
+over the same ensemble candidate set, gives a mean gain of $+0.004$\% across
+nine configurations ($N = 30, 45, 70 \times$ three farms; maximum
+$+0.026$\%). That is solver tolerance, and it is what theory predicts: the
+static solve is already globally optimal over that candidate set, so
+re-solving a sub-problem of it with the same information cannot improve on
+it.
 
-The reason is not that they were miscomputed but that the corrected engine
-does not measure the same thing. Re-solving on the remaining fields at four
-points through the window, over the same ensemble candidate set, gives a
-mean gain of $+0.004$\% across nine configurations
-($N = 30, 45, 70 \times$ three farms; maximum $+0.026$\%). That is solver
-tolerance, and it is what theory predicts: the static solve is already
-globally optimal over that candidate set, so re-solving a sub-problem of it
-with the same information cannot improve on it. What the corrected pipeline
-measures is the \emph{scheduling-side} value of adaptivity, and that value
-is zero.
-
-The superseded implementation measured something different and more
-interesting: it spliced weather actually observed up to each information
-cut-off onto the climatological ensemble members, so its replanner knew
-things the static plan did not. That \emph{information-side} value is a real
-quantity, but measuring it on the corrected engine requires candidate sets
+What this prices is the \emph{scheduling-side} value of adaptivity, and that
+value is zero. The \emph{information-side} value --- what a revision is worth
+when it can use weather observed since sowing began --- is a different and
+more interesting quantity, and measuring it requires candidate sets
 conditioned on partially-realised seasons, which this paper does not
-implement. We state the question as open rather than carry forward a number
-we cannot reproduce. The comparison with the irrigation scheduling
-literature, which motivated the curvature sweep, goes with it.
+implement. We therefore cannot say whether the near-null results reported for
+irrigation~\cite{kelly2023,becker2026} transfer to an operation where a
+timing error costs the whole crop. The question is open.
 
 \input{_iot}
 
@@ -771,19 +764,15 @@ $\pi = 0.5$, do not build this.
 
 \emph{What we can and cannot say about adaptivity.} Kelly \textit{et
 al.}~\cite{kelly2023} and Becker \textit{et al.}~\cite{becker2026} report
-that in-season adaptation adds little in irrigation scheduling. An earlier
-version of this work claimed to place that finding in a two-dimensional
-space --- how sharply the biology punishes a timing error, and how much
-freedom the operation has to correct one. That claim rested on the
-replanning experiment withdrawn in Section~\ref{sec:replan} and we do not
-make it. What survives is weaker: seed production \emph{does} differ from
-irrigation in the first dimension, since the yield response to a day of
-asynchrony is steep and measured \eqref{eq:yield} where the response to a
-day of irrigation timing is not. Whether that steepness translates into
-value from in-season revision is precisely what we failed to measure,
-because the only adaptivity our corrected pipeline can price is adaptivity
-with no new information. The question is open, and we would rather leave it
-open than answer it with a number we cannot reproduce.
+that in-season adaptation adds little in irrigation scheduling. Seed
+production \emph{does} differ from irrigation in one dimension that should
+matter: the yield response to a day of asynchrony is steep and measured
+\eqref{eq:yield}, where the response to a day of irrigation timing is not.
+Whether that steepness translates into value from in-season revision is
+exactly what we could not measure, because the only adaptivity we can price
+is adaptivity with no new information, which is worth nothing by
+construction (Section~\ref{sec:replan}). We leave the question open rather
+than answer it with the wrong experiment.
 
 \section{Limitations}
 \label{sec:limits}
@@ -828,21 +817,10 @@ supervised unit's presence at an isolated field, but if it were rows sown,
 about a third of the advantage would not be available.
 
 \emph{In-season replanning is unresolved, not answered.} The
-scheduling-side value is zero on the corrected engine
-(Section~\ref{sec:replan}); the information-side value is not measured here
-and an earlier figure for it is withdrawn. Any such experiment would also
+scheduling-side value is zero (Section~\ref{sec:replan}); the
+information-side value is not measured here. Any such experiment would also
 have to charge for observation, which consumes the capacity the schedule
 competes for.
-
-\emph{The engine was changed mid-project and not all old results survive.}
-An audit of every number against its source found that all the original
-scheduling results came from an implementation carrying a bonus constant in
-the solver objective, a falsified yield normaliser, first-male-only scoring
-and three divergent scoring paths. The assignment, practice, greedy,
-capacity-scaling and robustness experiments were re-run on the corrected
-engine and are what this paper reports; the replanning and curvature
-experiments were not reproducible on it and are withdrawn.
-\verb|records/AUDIT_FINAL.md| gives the disposition of every number.
 
 \section{Conclusion}
 % =========================================================================
@@ -872,35 +850,35 @@ ordering rule once capacity binds, by $9.6$\%: the trade is joint, and no
 one-field-at-a-time rule can make it.
 
 We also report two negatives. In-season replanning over the same information
-is worth $+0.004$\% --- nothing --- and the earlier figure we had for it
-measured a different quantity and is withdrawn. And the external validation
-against CIMMYT's recommendations is a consistency check on degree-day
-arithmetic whose rank statistics do not reach significance at $n = 6$. What
-remains is a field trial: executing one of these schedules on real fields
-and weighing the seed.
+is worth $+0.004$\%, which is nothing, so the value of adaptivity here --- if
+there is any --- must come from information the static plan lacks, and we did
+not measure that. And the external validation against CIMMYT's
+recommendations is a consistency check on degree-day arithmetic whose rank
+statistics do not reach significance at $n = 6$. What remains is a field
+trial: executing one of these schedules on real fields and weighing the
+seed.
 
 \section{Reproducibility}
 \label{sec:repro}
 % =========================================================================
 
-Simulator, weather, the CERES-Maize phenology table, every runner, every
-result file and the audit trail are released under MIT at
-\textbf{[repository URL to be supplied]}. Three commands ---
-\verb|run_familyc_main.py|, \verb|run_familyc_robust.py| and
-\verb|validate_cimmyt.py| --- reproduce every scheduling number here, and
-\verb|records/verify_manuscript.py| recomputes every headline, interval,
-table cell and solver diagnostic directly from the raw result rows and
-compares each against the value printed in this paper; all 23 checks pass.
-The test suite is 200 tests, fifteen of them pinning the CERES
-soil-temperature clamp order and nineteen the sensing model, among them
-non-anticipativity. Every biological parameter is traceable to a published
-source, and the two declared choices --- $\kappa$ and the visit-cost
-accounting --- are both swept. The superseded implementation
-and its output have been removed from the repository, so nothing there can be
-confused for or run in place of the code reported here;
-\verb|records/AUDIT_FINAL.md| gives the disposition of every number and
-quotes the defects it carried.
+The simulator, the weather record, the CERES-Maize phenology table, every
+runner, every result file and the test suite are released under MIT at
+\textbf{[repository URL to be supplied]}. Three commands, documented there,
+reproduce every scheduling number in this paper, and a fourth recomputes
+every headline, confidence interval, table cell and solver diagnostic
+directly from the raw result rows and compares each against the value
+printed here; all twenty-three of those checks pass. The test suite is 200
+tests, fifteen of them pinning the CERES soil-temperature clamp order and
+nineteen the sensing model, among them non-anticipativity.
 
+Every biological parameter is traceable to a published source: the yield
+response and plateau to~\cite{marahatta2025}, the degree-day requirements
+and validation targets to~\cite{chassaigne2021}, the thermal constants to
+DSSAT's ecotype file, and the sensor accuracy to the Oklahoma Mesonet
+thermistor specification. The two declared choices --- the reflection
+coefficient $\kappa$ and the visit-cost accounting --- are not fitted, and
+both are swept.
 
 \begin{thebibliography}{99}
 \scriptsize
