@@ -62,5 +62,17 @@ chk("protocol: out-of-domain field-years", float(m.n_out_of_domain.sum()), 0.0, 
 chk("protocol: field-years evaluated", float(m.n_field_years.sum()), 89418.0, 0)
 chk("tab:solver: slowest solve (s)", m[m.planner=="B6_joint"].solve_s.max(), 4.7, 0.1)
 
+lo_ = pd.read_csv(f"{R}/FC_loo_raw.csv")
+bw_ = rb[(rb.tag == "scenario") & (rb.curve == "winter_y1")]
+chk("limits: published winter_y1 grid mean vs best-of-4", bw_.gain_vs_best.mean(), 39.1)
+VALID = [1.00, 5.00]
+vd_ = lo_[lo_.loo_drop_tsi.isin(VALID)]
+chk("limits: LOO drop-1.00 mean vs best-of-4", vd_[vd_.loo_drop_tsi == 1.00].gain_vs_best.mean(), 28.5)
+chk("limits: LOO drop-5.00 mean vs best-of-4", vd_[vd_.loo_drop_tsi == 5.00].gain_vs_best.mean(), 39.5)
+chk("limits: LOO valid-subset weakest cell", vd_.gain_vs_best.min(), 13.5)
+print(f"{'OK ' if (vd_.gain_vs_best>0).all() and len(vd_)==54 else 'FAIL'} "
+      f"{'limits: LOO positive in all valid cells':48s} {(vd_.gain_vs_best>0).sum()} of {len(vd_)}")
+checks.append(bool((vd_.gain_vs_best > 0).all()) and len(vd_) == 54)
+
 print(f"\n{sum(checks)}/{len(checks)} checks passed")
 sys.exit(0 if all(checks) else 1)

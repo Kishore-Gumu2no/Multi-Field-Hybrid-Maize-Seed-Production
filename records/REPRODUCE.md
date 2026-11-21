@@ -59,11 +59,11 @@ runner's own gain columns:
 
 ## Paper
 
-    cd paper && pdflatex paper_v3.tex && pdflatex paper_v3.tex
+    cd paper && pdflatex paper_v4.tex && pdflatex paper_v4.tex
 
-`paper_v3.tex` is `paper_v2_filled.tex` with `\input{_iot}` and
-Figure 13 inserted before the Discussion. Note `paper_v2.tex` is the
-unfilled template and does not compile.
+`paper_v4.tex` is the manuscript; it pulls in the sensing section from
+`_iot.tex`. Earlier drafts have been removed from the repository, because
+they reported results this paper withdraws.
 
 ## What each result directory holds
 

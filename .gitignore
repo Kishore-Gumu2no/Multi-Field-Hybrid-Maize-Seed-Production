@@ -8,3 +8,5 @@ paper/*.out
 anthesis_paper.zip
 Anthesis_Scheduling_IEEE_paper.pdf
 .pytest_cache/
+paper/*.bbl
+paper/*.blg

@@ -33,7 +33,7 @@ def rows(sol):
         out[c.fid] = sorted(int(d) for d in c.cost)
     return out
 
-fig = plt.figure(figsize=(7.0, 2.9))
+fig = plt.figure(figsize=(7.0, 2.25))
 gs = fig.add_gridspec(1, 2, width_ratios=[1, 1], wspace=0.28)
 for k, (sol, ttl) in enumerate([(b1, "(a) practice"), (op, "(b) optimised")]):
     ax = fig.add_subplot(gs[0, k]); rr = rows(sol)
