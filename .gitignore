@@ -3,3 +3,8 @@ __pycache__/
 paper/*.aux
 paper/*.log
 paper/*.out
+
+# stale snapshots, not part of the release
+anthesis_paper.zip
+Anthesis_Scheduling_IEEE_paper.pdf
+.pytest_cache/
