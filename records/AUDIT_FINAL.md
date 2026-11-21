@@ -16,11 +16,34 @@ Family A or MIXED runner.** Only E7/E8 (the IoT work) and the new
 `results_fc_main/` were produced by Family C. `run_multifarm.py` is Family A
 transitively, through `from run_experiments import ...`.
 
-## 2. What Family A gets wrong
+## 2. What Family A got wrong
+
+**Family A has since been deleted from the repository** (commit following this
+audit), together with its thirteen runners and its result files. Only
+`daily_gdd`, the cumulative-GDD helpers and the `Field` container were kept,
+moved to `sim/gdd.py`, because the external validation and the thermal-time
+phenology provider use them and they touch none of the defects below. The
+defects are quoted here so the claim stays checkable without the code:
+
+* the bonus: `scheduler.solve_milp` added `10.0 * max(tbl.values())` to the
+  objective for every assigned field, so the solver maximised
+  yield + 10*max_y*(fields sown), not yield;
+* the normaliser: `core.seed_yield` divided by `Y(0)` computed through the
+  rectangular pollen/silk overlap that `sim/response.py` records as
+  falsified, its errors at the two observed negative-TSI points having
+  opposite signs (-0.159 at -3.75 d, +0.093 at -1.75 d);
+* first-male-only scoring, ignoring the second male sowing;
+* three divergent scoring paths: `scheduler.execute`, `baselines.execute`
+  and an inline scorer in `strategies`;
+* the ensemble mean taken over TSI rather than over r(TSI).
+
+The original wording follows.
+
+### What Family A gets wrong
 
 `sim/compare.py` documents the defects it excludes by construction:
 
-1. a 10x per-field bonus in the MILP objective (`sim/scheduler.py` 179--180),
+1. a 10x per-field bonus in the MILP objective (`scheduler.py` lines 179--180, since deleted),
    so the solver optimised a function different from the one reported;
 2. `sim.core.seed_yield`'s normaliser, built on the rectangular pollen/silk
    overlap that `sim/response.py` records as FALSIFIED (errors of opposite

@@ -3,7 +3,7 @@ Relative yield response to the tasseling-silking interval.
 
 WHAT THIS REPLACES
 ------------------
-`sim.core.seed_yield` returns ABSOLUTE t/ha, normalises implicitly on Y(0),
+The superseded engine's `seed_yield` returned ABSOLUTE t/ha, normalised implicitly on Y(0),
 clips at a 4.0 t/ha ceiling, and governs negative TSI with a rectangular
 pollen-window overlap. Each of those is a defect established in Phase 1 and
 Phase 2:
@@ -17,7 +17,7 @@ Phase 2:
     negative-TSI points have OPPOSITE signs, so the curvature is wrong, and
     its asymmetry gap is 0.279 against an observed 0.036.
 
-`sim.core.seed_yield` is left untouched so historical results stay reproducible.
+That engine has since been removed; see records/AUDIT_FINAL.md for what it produced.
 
 FORM
 ----
@@ -267,7 +267,7 @@ def ensemble_relative_yield(tsi_values, scenario=PRIMARY_SCENARIO):
 def rectangular_overlap_relative(x, d_m=POLLEN_SHED_DAYS,
                                  d_f=SILK_RECEPTIVE_DAYS):
     """
-    The superseded rectangular overlap, normalised as `sim.core.seed_yield`
+    The superseded rectangular overlap, normalised as that engine's `seed_yield`
     normalised it. FALSIFIED: errors at the two observed negative-TSI points
     have opposite signs (-0.159 at -3.75 d, +0.093 at -1.75 d), and the
     asymmetry gap is 0.279 against an observed 0.036.

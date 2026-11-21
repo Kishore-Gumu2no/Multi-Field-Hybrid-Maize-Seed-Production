@@ -3,7 +3,7 @@ Density-weighted pollen-silk overlap, with both male sowings.
 
 WHY NOT THE RECTANGULAR MODEL
 -----------------------------
-`sim.core._overlap_days` intersects two uniform windows. Tested against the two
+The superseded overlap helper intersected two uniform windows. Tested against the two
 observed negative-TSI points its errors have OPPOSITE signs (-0.159 at
 TSI -3.75 d, +0.093 at -1.75 d), so the defect is curvature, not calibration,
 and retuning the two widths cannot fix it. A uniform window treats the first

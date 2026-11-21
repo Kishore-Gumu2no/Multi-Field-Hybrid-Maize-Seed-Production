@@ -11,7 +11,7 @@ import numpy as np
 import pytest
 
 from sim import pairs
-from sim.core import Field
+from sim.gdd import Field
 from sim.phenology import ThermalTimePhenology, GDD_PER_DAY_NOMINAL
 
 

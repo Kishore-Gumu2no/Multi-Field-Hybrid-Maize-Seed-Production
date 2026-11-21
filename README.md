@@ -10,32 +10,26 @@ day is done by hand today. This repository formulates that decision as a
 stochastic assignment problem, solves it exactly, and evaluates it on
 twenty-one observed seasons at an Indian seed-production site.
 
-## Read this before running anything
+## A note on what is not here
 
-**This repository contains two engines. Only one produced the paper.**
+An earlier version of this work used a different implementation, which an
+audit found to carry five defects: a 10x per-field bonus in the solver
+objective, so it optimised a different function from the one it reported; a
+yield normaliser built on a pollen/silk overlap formula that is falsified by
+the data it was meant to respect; first-male-only scoring; three divergent
+scoring paths; and the ensemble mean taken over the tasseling--silking
+interval rather than over the yield response of it.
 
-| | Where | Status |
-|---|---|---|
-| **Current** | `sim/build.py`, `optimise.py`, `scoring.py`, `compare.py`, `capacity.py`, `response.py`, `phenology.py`, `pairs.py`, `pollen.py`, `runspec.py`, `sensing.py`, `soilthermal.py` | **Every number in the paper comes from here.** |
-| Superseded | `sim/core.py`, `scheduler.py`, `strategies.py`, `baselines.py` | Kept only so that withdrawn results stay inspectable. **Do not use.** |
+Every scheduling experiment was re-run on the implementation in this
+repository, and two results that could not be reproduced on it were
+withdrawn from the paper rather than carried forward. **The defective code
+and its output have been deleted**, so nothing here can be confused for it
+and nothing here can accidentally be run with it.
 
-The superseded engine carries five defects: a 10x per-field bonus in the
-solver objective, so it optimised a different function from the one it
-reported; a yield normaliser built on a pollen/silk overlap formula that is
-falsified by the data it was meant to respect; first-male-only scoring; three
-divergent scoring paths; and the ensemble mean taken over the
-tasseling--silking interval rather than over the yield response of it.
-
-Every top-level script beginning `run_experiments`, `run_full21`,
-`run_curves`, `run_real`, `run_real_rep`, `run_baseline`, `run_nomerge`,
-`run_capacity` or `make_figures` uses the superseded engine and produces
-numbers that are **not** in the paper. `records/trace_results.py` maps every
-result file to the engine that wrote it.
-
-`validate_cimmyt.py` is the one exception: it imports `daily_gdd` from the
-old module, but that function is plain degree-day arithmetic and touches none
-of the five defects. Its result reproduces exactly and is reported in the
-paper.
+`records/AUDIT_FINAL.md` documents what was found, what was re-run, what was
+retained and what was withdrawn, with the defects quoted. Development history
+is in `records/RESEARCH_DECISIONS.md`. If you need the removed code itself,
+it is in this repository's git history up to the commit that removed it.
 
 ## Reproducing the paper
 
@@ -88,12 +82,12 @@ orders, because those runs predate the fifth rule, and says so.
 ## Two results were withdrawn
 
 In-season replanning and the curvature sweep that depended on it were
-produced by the superseded engine. On the corrected engine, re-solving
+produced by the earlier defective implementation. On the current one, re-solving
 in-season over the same information is worth +0.004%, which is solver
 tolerance, and the reason is structural: the static solve is already
 optimal over that candidate set.
 
-The superseded implementation measured something different and more
+That implementation measured something different and more
 interesting --- it spliced observed weather onto the forecast ensemble, so
 its replanner knew things the static plan did not. Measuring that properly
 needs candidate sets conditioned on partially-realised seasons, which is not
@@ -178,7 +172,7 @@ operations, hours and hectares models do not, and no claim is made for them.
 ## Layout
 
 ```
-sim/                  current engine (and the superseded one, marked above)
+sim/                  the simulator
 run_familyc_main.py   assignment, practice, greedy, capacity scaling
 run_familyc_robust.py scenario grid and merging ablation
 run_iot*.py           simulated soil-temperature sensing
@@ -188,7 +182,7 @@ tests/                200 tests
 records/              audit trail, verification scripts, run logs
 results_fc_main/      the result rows behind the paper's scheduling numbers
 results_iot/, results_cap*/  the result rows behind the sensing numbers
-results/              superseded output, retained for inspection
+results/              the DSSAT flowering table and the validation output
 paper/paper_v4.tex    the manuscript
 figs/                 figures
 ```

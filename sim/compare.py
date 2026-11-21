@@ -3,8 +3,8 @@ Strategies S1-S5 and baselines B1-B6, all scored through `scoring.score_plan`.
 
 WHY THIS MODULE EXISTS  (closes U4)
 -----------------------------------
-The Phase 3 audit found THREE independent scoring paths: `sim.scheduler.execute`,
-`sim.baselines.execute` and an inline scorer in `sim.strategies`. Any divergence
+The Phase 3 audit found THREE independent scoring paths in the superseded
+engine: two `execute` functions and an inline scorer. Any divergence
 between them silently invalidates every strategy-versus-baseline comparison and
 produces results that look entirely reasonable. The project has already been
 caught by one instance of this class: the 10x bonus meant the solver optimised a
@@ -23,7 +23,7 @@ freedom is WHICH candidate it picks. Execution then re-scores through the same
 `score_plan`, so the objective coefficient and the execution score are the same
 number for every path, not merely equal by agreement.
 
-The legacy modules `sim/strategies.py` and `sim/baselines.py` are UNTOUCHED, so
+The legacy strategy and baseline modules were left UNTOUCHED at the time, so
 historical results stay reproducible. Nothing here imports them.
 
 WHAT CANNOT ENTER THIS PATH
@@ -33,7 +33,7 @@ WHAT CANNOT ENTER THIS PATH
   * first-male-only scoring-- `score_plan` takes `SowingPlan(sow_f, sow_m1,
                               sow_m2)` and credits the second sowing through the
                               split ratio
-  * `sim.core.seed_yield`  -- absolute t/ha on a Y(0) normaliser with the
+  * the superseded `seed_yield` -- absolute t/ha on a Y(0) normaliser with the
                               falsified rectangular overlap. Not imported here
 """
 

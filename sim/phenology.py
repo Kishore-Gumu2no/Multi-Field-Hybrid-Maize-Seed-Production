@@ -45,7 +45,7 @@ import os
 
 import numpy as np
 
-from .core import gdd_cumulative, flowering_day_fast
+from .gdd import gdd_cumulative, flowering_day_fast
 
 
 # Nominal GDD per day under the reported winter regime, used only to document

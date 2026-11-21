@@ -5,8 +5,8 @@ execution, so a plan can never be scored one way and executed another.
 WHY THIS MODULE EXISTS
 ----------------------
 The audit found THREE independent scoring paths in the repository:
-`sim.scheduler.execute`, `sim.baselines.execute` and an inline scorer in
-`sim.strategies`. A divergence between any two silently invalidates every
+the superseded engine's two `execute` paths and an inline scorer in its
+strategies module. A divergence between any two silently invalidates every
 strategy comparison and produces results that look entirely reasonable. The
 project has already been caught by one instance of this class -- the 10x bonus
 meant the solver was optimising a different objective from the one reported.

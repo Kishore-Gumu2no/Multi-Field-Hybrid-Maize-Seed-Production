@@ -167,7 +167,7 @@ def test_t13_8_single_vs_split_both_run_and_can_differ(ph, farm):
 def test_t13_9_no_legacy_imports_in_the_phase4_path():
     """
     Requirement 8. The comparison path must not reach the 10x bonus, the
-    first-male-only scorer, or `sim.core.seed_yield`.
+    first-male-only scorer, or the superseded `seed_yield`.
     """
     for mod in (compare, build, optimise, scoring):
         tree = ast.parse(inspect.getsource(mod))

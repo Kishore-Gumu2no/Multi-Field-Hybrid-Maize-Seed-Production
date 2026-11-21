@@ -20,7 +20,7 @@ def _season(n=400):
 
 def test_default_sigma_is_the_value_already_in_the_repository():
     """
-    sim.core.make_farm carries temp_bias=rng.normal(0.0, 0.7), committed long
+    the superseded farm builder carried temp_bias=rng.normal(0.0, 0.7), committed long
     before this workstream. Using it as the default is what stops the headline
     scenario being tuned to suit the sensor.
     """

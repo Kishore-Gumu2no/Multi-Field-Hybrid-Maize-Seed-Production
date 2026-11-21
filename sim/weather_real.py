@@ -19,7 +19,7 @@ import re
 import numpy as np
 import pandas as pd
 
-from .core import daily_gdd
+from .gdd import daily_gdd
 from .dssat import write_wth
 
 # Each quantity may arrive under any of several POWER column names: the

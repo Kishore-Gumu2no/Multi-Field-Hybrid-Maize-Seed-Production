@@ -122,4 +122,4 @@ python3 make_figure_iot.py    # fig13 (sensing decision value)
 | `results_fc_main/FC_relaxed_raw.csv` | the offset-relaxed hand rule |
 | `results_fc_main/FC_all_planners.csv` | the three merged; what the paper reads |
 | `results_fc_main/FC_robust_raw.csv` | scenario grid and merging ablation |
-| `results/` | legacy Family A output, superseded, retained for inspection |
+| `results/` | the DSSAT flowering table and the validation output |

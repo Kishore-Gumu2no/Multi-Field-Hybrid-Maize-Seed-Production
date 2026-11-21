@@ -43,7 +43,7 @@ outside an unsown field's window.
 OFFSET MAGNITUDE IS NOT CHOSEN TO SUIT THE SENSOR
 -------------------------------------------------
 The default scale, sigma = 0.7 degC, is the value already present in
-`sim.core.make_farm` as `temp_bias=rng.normal(0.0, 0.7)`, committed long
+the superseded engine's farm builder as `temp_bias=rng.normal(0.0, 0.7)`, committed long
 before this workstream existed. It is used as the default so the headline
 scenario cannot be accused of being tuned. Every experiment sweeps sigma from
 0 upward regardless, and the sigma = 0 arm is a null scenario in which the
@@ -56,7 +56,7 @@ import numpy as np
 
 from . import soilthermal as _st
 
-# Already in sim.core.make_farm, predating this workstream. See docstring.
+# Already in the superseded farm builder, predating this workstream.
 SIGMA_DEFAULT = 0.7
 
 # Documented accuracy of the 5 cm thermistor probes whose data this study was

@@ -33,7 +33,7 @@ OBJ-C  SENSITIVITY. As OBJ-B but stage 1 maximises HECTARES sown, which fixes
 
 THE 10x BONUS IS GONE
 ---------------------
-`sim.scheduler.solve_milp` added `10.0 * max(tbl.values())` per assigned field
+The superseded solver added `10.0 * max(tbl.values())` per assigned field
 to make coverage dominate. Established defective: the constant must be of order
 |I| * max(r) to order lexicographically, so at 10x it never worked above about
 ten fields, and removing it changed the result from 34 fields / 283.0 t to

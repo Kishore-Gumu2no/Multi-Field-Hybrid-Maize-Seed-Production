@@ -25,7 +25,7 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
-from sim.core import daily_gdd
+from sim.gdd import daily_gdd
 from sim.weather_real import read_power_csv, years_available, to_season
 
 HERE = os.path.dirname(os.path.abspath(__file__))
